@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imposters Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .category-item:hover {
+            background: #e9ecef;
+        }
+
+        .category-item input[type="checkbox"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .player-list {
+            margin-top: 15px;
+        }
+
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .player-item span {
+            font-weight: 500;
+        }
+
+        .remove-btn {
+            padding: 5px 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .player-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .player-icon {
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .player-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .player-icon:active {
+            transform: scale(0.95);
+        }
+
+        .player-icon.viewed {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .player-icon.viewed:hover {
+            transform: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .word-reveal {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .word-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+            text-transform: uppercase;
+            word-wrap: normal;
+            overflow-wrap: normal;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: clip;
+        }
+
+        .category-display {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .imposter-word {
+            /* Removed red color - imposters don't know they're imposters in variant mode */
+        }
+
+        .game-info {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .game-info p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+
+        .game-info strong {
+            color: #667eea;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .result-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .imposter-tag {
+            background: #dc3545;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .innocent-tag {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            margin-top: 20px;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .custom-category-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+
+        .custom-category-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .custom-input-group {
+            margin-bottom: 15px;
+        }
+
+        .custom-input-group label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .custom-categories-list {
+            margin-top: 15px;
+        }
+
+        .custom-category-item {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .custom-category-item strong {
+            color: #856404;
+        }
+
+        .custom-category-item small {
+            color: #856404;
+            display: block;
+            margin-top: 3px;
+        }
+
+        .hint-display {
+            font-size: 1.1em;
+            color: #ff6b6b;
+            margin-top: 15px;
+            padding: 15px;
+            background: #ffe0e0;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .mode-toggle-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .mode-toggle-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .mode-toggle {
+            display: inline-flex;
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .mode-option {
+            padding: 10px 24px;
+            border: none;
+            background: transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #666;
+        }
+
+        .mode-option.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .game-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .game-option:hover {
+            background: #e9ecef;
+        }
+
+        .game-option input[type="checkbox"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .game-option label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .add-player-section {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .add-player-section input {
+            flex: 1;
+        }
+
+        .add-player-section button {
+            width: auto;
+            padding: 12px 25px;
+            margin-top: 0;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Home Screen -->
+        <div id="homeScreen">
+            <h1>🎭 Imposters</h1>
+            
+            <div class="mode-toggle-container">
+                <span class="mode-toggle-label">Game Mode</span>
+                <div class="mode-toggle">
+                    <button class="mode-option active" id="classicModeBtn" onclick="setGameMode('classic')">Classic</button>
+                    <button class="mode-option" id="variantModeBtn" onclick="setGameMode('variant')">Variant</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <label>Number of Imposters:</label>
+                <input type="number" id="imposterCount" min="1" max="11" value="2">
+            </div>
+
+            <button onclick="showCategories()" style="background: #764ba2;">Select Categories</button>
+            <div id="categoryStatus" style="margin-top: 10px; color: #667eea; font-weight: 600;"></div>
+
+            <div class="section">
+                <label>Game Options:</label>
+                <div class="game-option" onclick="toggleCheckbox('showCategoryOption')">
+                    <input type="checkbox" id="showCategoryOption" checked>
+                    <label for="showCategoryOption">Show category during round</label>
+                </div>
+                <div class="game-option" id="hintOption" onclick="toggleCheckbox('imposterHintOption')">
+                    <input type="checkbox" id="imposterHintOption">
+                    <label for="imposterHintOption">Give hint to imposters</label>
+                </div>
+            </div>
+
+            <div class="section">
+                <label>Players (2-12):</label>
+                <div class="add-player-section">
+                    <input type="text" id="playerNameInput" placeholder="Enter player name">
+                    <button onclick="addPlayer()">Add</button>
+                </div>
+                <div id="playerError" class="error hidden"></div>
+                <div class="player-list" id="playerList"></div>
+            </div>
+
+            <button onclick="startGame()">Start Game</button>
+        </div>
+
+        <!-- Category Selection Screen -->
+        <div id="categoryScreen" class="hidden">
+            <h2>Select Categories</h2>
+            <div class="category-grid" id="categoryGrid"></div>
+            
+            <div class="custom-category-section">
+                <h3>➕ Add Custom Category</h3>
+                <div class="custom-input-group">
+                    <label>Category Name:</label>
+                    <input type="text" id="customCategoryName" placeholder="e.g., Movies, TV Shows, etc.">
+                </div>
+                <div class="custom-input-group">
+                    <label>Items (comma-separated):</label>
+                    <textarea id="customCategoryItems" placeholder="e.g., The Matrix, Inception, Interstellar, Avatar"></textarea>
+                </div>
+                <button onclick="addCustomCategory()">Add Category</button>
+                <div id="customCategoryError" class="error hidden"></div>
+                
+                <div class="custom-categories-list" id="customCategoriesList"></div>
+            </div>
+            
+            <button onclick="backToHomeFromCategories()">Done</button>
+        </div>
+
+        <!-- Player Selection Screen -->
+        <div id="playerSelectionScreen" class="hidden">
+            <h2>Tap Your Name</h2>
+            <div class="player-grid" id="playerGrid"></div>
+        </div>
+
+        <!-- Word Reveal Screen -->
+        <div id="wordRevealScreen" class="hidden">
+            <div class="word-reveal">
+                <h2>Your Word:</h2>
+                <div class="word-display" id="wordDisplay"></div>
+                <div class="category-display" id="categoryDisplayWord"></div>
+                <div class="hint-display" id="hintDisplay" style="display: none;"></div>
+                <button onclick="nextPlayer()">Next Player</button>
+            </div>
+        </div>
+
+        <!-- Game Start Info Screen -->
+        <div id="gameStartScreen" class="hidden">
+            <h2>🎮 Game Started!</h2>
+            <div class="game-info">
+                <p><strong>Starting Player:</strong> <span id="startingPlayer"></span></p>
+                <p><strong>Direction:</strong> <span id="direction"></span></p>
+                <p id="categoryGameInfo"><strong>Category:</strong> <span id="categoryDisplay"></span></p>
+            </div>
+            <p style="margin: 20px 0; line-height: 1.6;">
+                Go around in a circle and give hints about your word. Imposters don't know the real word!
+                Vote for who you think the imposters are, then reveal the results.
+            </p>
+            <button onclick="showRevealResults()">Reveal Results</button>
+            <button class="back-btn" onclick="backToHome()">New Game</button>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="hidden">
+            <h2>🎉 Game Results</h2>
+            <div class="game-info">
+                <p><strong>The Word Was:</strong> <span id="resultWord" style="font-size: 1.3em; color: #667eea;"></span></p>
+                <p><strong>Category:</strong> <span id="resultCategory"></span></p>
+            </div>
+            <div class="results" id="resultsList"></div>
+            <button class="back-btn" onclick="backToHome()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game data
+        const categories = {
+            "Objects": ["Lamp", "Chair", "Book", "Pencil", "Scissors", "Camera", "Mirror", "Clock", "Pillow", "Blanket", "Cup", "Plate", "Fork", "Spoon", "Knife", "Toothbrush", "Soap", "Towel", "Umbrella", "Backpack", "Wallet", "Keys", "Phone", "Laptop", "Tablet", "Watch", "Glasses", "Hat", "Shoe", "Sock", "Shirt", "Pants", "Jacket", "Glove", "Scarf", "Belt", "Tie", "Ring", "Necklace", "Bracelet", "Earring", "Hairbrush", "Comb", "Lipstick", "Mascara", "Perfume", "Candle", "Vase", "Picture Frame", "Poster", "Rug", "Curtain", "Door", "Window", "Table", "Desk", "Shelf", "Drawer", "Cabinet", "Couch", "Bed", "Mattress", "Remote Control", "TV", "Radio", "Speaker", "Headphones", "Charger", "Battery", "Lightbulb", "Fan", "Heater", "AC", "Thermostat", "Vacuum", "Broom", "Mop", "Bucket", "Trash Can", "Recycling Bin", "Hammer", "Screwdriver", "Wrench", "Nail", "Screw", "Drill", "Saw", "Tape", "Glue", "Stapler", "Paperclip", "Rubber Band", "Envelope", "Stamp", "Postcard", "Magazine", "Newspaper", "Journal", "Notebook", "Calculator", "Pen", "Eraser", "Ruler", "Marker", "Highlighter", "Folder", "Binder", "Briefcase", "Suitcase", "Luggage", "Duffel Bag", "Purse", "Handbag", "Tote Bag", "Messenger Bag", "Fanny Pack", "Keychain", "Sunglasses", "Contact Lens", "Thermometer", "Bandage", "Cotton Ball", "Q-tip", "Tissue", "Paper Towel", "Toilet Paper", "Shampoo", "Conditioner", "Lotion", "Deodorant", "Razor", "Shaving Cream", "Cologne", "Makeup Brush", "Nail Polish", "Hair Dryer", "Straightener", "Curling Iron", "Tweezers", "Nail Clipper", "Flashlight", "Lantern", "Candle Holder", "Incense", "Air Freshener"],
+            "Clash Royale Cards": ["Knight", "Archers", "Goblins", "Giant", "P.E.K.K.A", "Minions", "Balloon", "Witch", "Barbarians", "Golem", "Skeletons", "Valkyrie", "Skeleton Army", "Bomber", "Musketeer", "Baby Dragon", "Prince", "Wizard", "Mini P.E.K.K.A", "Spear Goblins", "Giant Skeleton", "Hog Rider", "Minion Horde", "Ice Wizard", "Royal Giant", "Guards", "Princess", "Dark Prince", "Three Musketeers", "Lava Hound", "Ice Spirit", "Fire Spirit", "Miner", "Sparky", "Bowler", "Lumberjack", "Battle Ram", "Inferno Dragon", "Ice Golem", "Mega Minion", "Dart Goblin", "Goblin Gang", "Electro Wizard", "Elite Barbarians", "Hunter", "Executioner", "Bandit", "Royal Recruits", "Night Witch", "Bats", "Royal Ghost", "Ram Rider", "Zappies", "Rascals", "Cannon Cart", "Mega Knight", "Skeleton Barrel", "Flying Machine", "Wall Breakers", "Royal Hogs", "Goblin Giant", "Fisherman", "Magic Archer", "Electro Dragon", "Firecracker", "Mighty Miner", "Elixir Golem", "Battle Healer", "Electro Giant", "Mother Witch", "Electro Spirit", "Golden Knight", "Archer Queen", "Skeleton King", "Phoenix", "Monk", "Little Prince", "Cannon", "Goblin Hut", "Mortar", "Inferno Tower", "Bomb Tower", "Barbarian Hut", "Tesla", "Elixir Collector", "X-Bow", "Tombstone", "Furnace", "Goblin Cage", "Goblin Drill", "Fireball", "Arrows", "Rage", "Rocket", "Goblin Barrel", "Freeze", "Mirror", "Lightning", "Zap", "Poison", "Graveyard", "The Log", "Tornado", "Clone", "Earthquake", "Barbarian Barrel", "Heal Spirit", "Giant Snowball", "Royal Delivery", "Void", "Triple Elixir", "Dagger Duchess", "Goblinstein"],
+            "Locations": ["Beach", "Mountain", "Desert", "Forest", "City", "Village", "Island", "Airport", "Train Station", "Hospital", "School", "Library", "Museum", "Park", "Zoo", "Stadium", "Theater", "Restaurant", "Cafe", "Hotel", "Mall", "Supermarket", "Bank", "Post Office", "Police Station", "Fire Station", "Church", "Temple", "Mosque", "Castle", "Palace", "Tower", "Bridge", "Tunnel", "Cave", "Waterfall", "Lake", "River", "Ocean", "Volcano", "Valley", "Canyon", "Cliff", "Lighthouse", "Harbor", "Marina", "Farm", "Ranch", "Vineyard", "Factory", "Office", "Warehouse", "Gym", "Pool", "Spa", "Salon", "Barbershop", "Laundromat", "Gas Station", "Car Wash", "Parking Lot", "Garage", "Workshop", "Bakery", "Butcher", "Deli", "Pharmacy", "Clinic", "Dentist", "Vet", "Courthouse", "Prison", "Embassy", "Aquarium", "Planetarium", "Observatory", "Amusement Park", "Carnival", "Circus", "Concert Hall", "Opera House", "Casino", "Nightclub", "Bar", "Pub", "Brewery", "Winery", "Distillery", "Cemetery", "Memorial", "Monument", "Ruins", "Campground", "Trail", "Pier", "Dock", "Boardwalk", "Plaza", "Square", "Fountain", "Tundra", "Jungle", "Bookstore", "Gallery", "Shopping Center", "Credit Union", "Motel", "Arena", "Fitness Center", "Hot Tub", "Watchtower", "Hill"],
+            "Sports": ["Soccer", "Basketball", "Tennis", "Baseball", "Football", "Hockey", "Golf", "Swimming", "Boxing", "Wrestling", "Volleyball", "Cricket", "Rugby", "Table Tennis", "Badminton", "Skiing", "Snowboarding", "Skating", "Surfing", "Diving", "Gymnastics", "Track and Field", "Marathon", "Cycling", "Fencing", "Archery", "Bowling", "Darts", "Pool", "Snooker", "Lacrosse", "Softball", "Handball", "Water Polo", "Rowing", "Kayaking", "Canoeing", "Sailing", "Triathlon", "Decathlon", "Pentathlon", "Pole Vault", "High Jump", "Long Jump", "Shot Put", "Javelin", "Discus", "Hammer Throw", "Curling", "Bobsled", "Luge", "Skeleton", "Biathlon", "Cross Country", "Downhill", "Slalom", "Moguls", "Halfpipe", "Skateboarding", "BMX", "Mountain Biking", "Motocross", "NASCAR", "Formula 1", "Rally Racing", "Drag Racing", "Horseback Riding", "Polo", "Rodeo", "Bull Riding", "Rock Climbing", "Bouldering", "Parkour", "Martial Arts", "Karate", "Judo", "Taekwondo", "Jiu Jitsu", "Kickboxing", "MMA", "Sumo", "Kendo", "Tai Chi", "Yoga", "Pilates", "Aerobics", "Zumba", "Crossfit", "Weightlifting", "Powerlifting", "Bodybuilding", "Strongman", "Cheerleading", "Dance", "Figure Skating", "Speed Skating", "Synchronized Swimming", "Rhythmic Gymnastics", "Mini Golf", "Bodyboarding", "Half Marathon", "Bocce", "Rollerblading", "Rounders", "Running"],
+            "Animals": ["Dog", "Cat", "Horse", "Cow", "Pig", "Sheep", "Goat", "Chicken", "Duck", "Goose", "Turkey", "Rabbit", "Mouse", "Rat", "Hamster", "Guinea Pig", "Elephant", "Lion", "Tiger", "Bear", "Wolf", "Fox", "Deer", "Moose", "Elk", "Giraffe", "Zebra", "Hippo", "Rhino", "Gorilla", "Monkey", "Chimpanzee", "Orangutan", "Kangaroo", "Koala", "Panda", "Sloth", "Armadillo", "Anteater", "Beaver", "Otter", "Seal", "Walrus", "Whale", "Dolphin", "Shark", "Octopus", "Squid", "Jellyfish", "Crab", "Lobster", "Shrimp", "Starfish", "Eagle", "Hawk", "Owl", "Parrot", "Penguin", "Flamingo", "Swan", "Peacock", "Crow", "Raven", "Pigeon", "Sparrow", "Robin", "Woodpecker", "Hummingbird", "Snake", "Lizard", "Turtle", "Tortoise", "Crocodile", "Alligator", "Frog", "Toad", "Salamander", "Butterfly", "Bee", "Ant", "Spider", "Scorpion", "Ladybug", "Dragonfly", "Grasshopper", "Cricket", "Beetle", "Caterpillar", "Snail", "Slug", "Worm", "Bat", "Camel", "Donkey", "Mule", "Buffalo", "Bison", "Llama", "Alpaca", "Leopard", "Cheetah", "Jaguar", "Cougar", "Lynx", "Panther", "Hyena", "Raccoon", "Skunk", "Porcupine", "Hedgehog", "Mole", "Chipmunk", "Squirrel", "Prairie Dog", "Ferret", "Weasel", "Badger", "Wolverine", "Possum", "Platypus", "Emu", "Ostrich", "Vulture", "Pelican", "Stork", "Crane", "Heron", "Seagull", "Albatross", "Condor", "Toucan", "Cockatoo", "Macaw", "Parakeet", "Canary", "Finch", "Cardinal", "Blue Jay", "Mockingbird", "Nightingale", "Kingfisher", "Python", "Cobra", "Viper", "Rattlesnake", "Anaconda", "Boa", "Porpoise", "Puffin", "Hare", "Ape", "Okapi", "Moth", "Wasp", "Coyote", "Boar"],
+            "Food": ["Pizza", "Burger", "Hot Dog", "Taco", "Burrito", "Sandwich", "Pasta", "Spaghetti", "Lasagna", "Sushi", "Ramen", "Steak", "Chicken", "Fish", "Shrimp", "Lobster", "Crab", "Bacon", "Sausage", "Ham", "Egg", "Cheese", "Bread", "Rice", "Potato", "Fries", "Salad", "Soup", "Chili", "Curry", "Stir Fry", "Dim Sum", "Dumpling", "Spring Roll", "Tempura", "BBQ", "Ribs", "Wings", "Nuggets", "Popcorn", "Nachos", "Quesadilla", "Enchilada", "Tamale", "Empanada", "Pie", "Cake", "Cookie", "Brownie", "Donut", "Muffin", "Cupcake", "Pancake", "Waffle", "Crepe", "Ice Cream", "Gelato", "Sorbet", "Pudding", "Custard", "Cheesecake", "Tiramisu", "Macaron", "Croissant", "Bagel", "Toast", "Cereal", "Oatmeal", "Yogurt", "Smoothie", "Milkshake", "Apple", "Banana", "Orange", "Grape", "Strawberry", "Blueberry", "Raspberry", "Watermelon", "Mango", "Pineapple", "Peach", "Pear", "Cherry", "Plum", "Kiwi", "Avocado", "Tomato", "Cucumber", "Carrot", "Broccoli", "Cauliflower", "Spinach", "Lettuce", "Corn", "Peas", "Beans", "Onion", "Garlic", "Pepper", "Pretzel", "Chips", "Crackers", "Peanut Butter", "Jelly", "Honey", "Syrup", "Jam", "Butter", "Cream Cheese", "Cottage Cheese", "Mozzarella", "Cheddar", "Parmesan", "Brie", "Gouda", "Swiss", "Feta", "Blue Cheese", "Hummus", "Guacamole", "Salsa", "Ketchup", "Mustard", "Mayo", "Ranch", "BBQ Sauce", "Soy Sauce", "Hot Sauce", "Teriyaki", "Alfredo", "Marinara", "Pesto", "Vinegar", "Olive Oil", "Coconut Oil", "Chocolate", "Candy", "Gummy Bears", "Lollipop", "Cotton Candy", "Fudge", "Caramel", "Toffee", "Marshmallow", "Granola", "Quinoa", "Sweet Potato", "Onion Rings", "Cantaloupe", "Grapefruit", "Plantain", "Coleslaw", "Stew", "Tea", "Coffee", "Lemonade", "Juice", "Celery", "Turkey"],
+            "Brands": ["Apple", "Samsung", "Google", "Microsoft", "Amazon", "Facebook", "Nike", "Adidas", "Puma", "Reebok", "Coca-Cola", "Pepsi", "McDonald's", "Burger King", "KFC", "Subway", "Starbucks", "Dunkin", "Toyota", "Honda", "Ford", "Tesla", "BMW", "Mercedes", "Audi", "Volkswagen", "Ferrari", "Lamborghini", "Porsche", "Disney", "Netflix", "Spotify", "YouTube", "Instagram", "Twitter", "TikTok", "Snapchat", "Sony", "Nintendo", "PlayStation", "Xbox", "Gucci", "Louis Vuitton", "Chanel", "Prada", "Rolex", "Omega", "Cartier", "Tiffany", "IKEA", "Walmart", "Target", "Costco", "Kroger", "Whole Foods", "7-Eleven", "CVS", "Walgreens", "Home Depot", "Lowe's", "Best Buy", "GameStop", "Foot Locker", "Gap", "H&M", "Zara", "Uniqlo", "Levi's", "Ralph Lauren", "Tommy Hilfiger", "Calvin Klein", "Victoria's Secret", "L'Oreal", "Maybelline", "MAC", "Sephora", "Ulta", "Gillette", "Old Spice", "Dove", "Colgate", "Crest", "Listerine", "Kleenex", "Charmin", "Bounty", "Tide", "Downy", "Febreze", "Lysol", "Clorox", "Band-Aid", "Tylenol", "Advil", "Benadryl", "Vicks", "Intel", "AMD", "Nvidia", "Universal", "eBay", "Yahoo", "Panasonic", "Rivian", "Hulu", "Vimeo", "Reels", "LG", "Chevrolet", "Asus"],
+            "Games": ["Minecraft", "Fortnite", "Roblox", "Among Us", "Fall Guys", "Valorant", "League of Legends", "Dota 2", "Counter-Strike", "Call of Duty", "Overwatch", "Apex Legends", "PUBG", "GTA", "Red Dead Redemption", "The Witcher", "Skyrim", "Zelda", "Mario", "Pokemon", "Sonic", "Pac-Man", "Tetris", "Candy Crush", "Angry Birds", "Temple Run", "Subway Surfers", "Clash of Clans", "Clash Royale", "Brawl Stars", "FIFA", "NBA 2K", "Madden", "Rocket League", "Forza", "Gran Turismo", "Need for Speed", "Assassin's Creed", "Far Cry", "Battlefield", "Halo", "Gears of War", "Uncharted", "The Last of Us", "God of War", "Spider-Man", "Batman Arkham", "Mortal Kombat", "Street Fighter", "Tekken", "Super Smash Bros", "Animal Crossing", "Sims", "Civilization", "Age of Empires", "StarCraft", "Warcraft", "Hearthstone", "Magic The Gathering", "Yu-Gi-Oh", "Chess", "Checkers", "Monopoly", "Scrabble", "UNO", "Poker", "Blackjack", "Solitaire", "Minesweeper", "Sudoku", "Wordle", "2048", "Flappy Bird", "Geometry Dash", "Plants vs Zombies", "Five Nights at Freddy's", "Terraria", "Stardew Valley", "Undertale", "Cuphead", "Hollow Knight", "Celeste", "Dead Cells", "Hades", "Dark Souls", "Elden Ring", "Bloodborne", "Sekiro", "Monster Hunter", "Resident Evil", "Silent Hill", "Dead Space", "Bioshock", "Half-Life", "Portal", "Left 4 Dead", "Destiny", "Borderlands", "Diablo", "Path of Exile", "Escape from Tarkov", "Rainbow Six", "Payday", "Metal Gear Solid", "Splinter Cell", "Hitman", "Tomb Raider", "Final Fantasy", "Dragon Quest", "Persona", "Kingdom Hearts", "Yakuza", "Nier", "Crash Bandicoot", "Spyro", "Rayman", "PES", "Digimon", "Town of Salem", "Stumble Guys", "FreeCell", "Bejeweled", "Puyo Puyo", "Ms. Pac-Man", "Portal 2", "Warzone", "Life", "Phase 10", "Team Fortress", "Supersonic Acrobatic", "NBA Live"],
+            "Countries": ["USA", "Canada", "Mexico", "Brazil", "Argentina", "Chile", "Colombia", "Peru", "Venezuela", "UK", "France", "Germany", "Italy", "Spain", "Portugal", "Netherlands", "Belgium", "Switzerland", "Austria", "Sweden", "Norway", "Denmark", "Finland", "Iceland", "Ireland", "Poland", "Czech Republic", "Hungary", "Romania", "Greece", "Turkey", "Russia", "Ukraine", "China", "Japan", "South Korea", "North Korea", "India", "Pakistan", "Bangladesh", "Indonesia", "Thailand", "Vietnam", "Philippines", "Malaysia", "Singapore", "Australia", "New Zealand", "Egypt", "South Africa", "Nigeria", "Kenya", "Morocco", "Algeria", "Ethiopia", "Ghana", "Saudi Arabia", "UAE", "Iran", "Iraq", "Israel", "Lebanon", "Jordan", "Syria", "Qatar", "Kuwait", "Oman", "Yemen", "Afghanistan", "Kazakhstan", "Uzbekistan", "Mongolia", "Nepal", "Sri Lanka", "Myanmar", "Cambodia", "Laos", "Croatia", "Serbia", "Slovenia", "Slovakia", "Bulgaria", "Lithuania", "Latvia", "Estonia", "Belarus", "Moldova", "Armenia", "Georgia", "Azerbaijan", "Cuba", "Jamaica", "Haiti", "Dominican Republic", "Puerto Rico", "Costa Rica", "Panama", "Guatemala", "Honduras", "El Salvador", "Nicaragua", "Bolivia", "Ecuador", "Paraguay", "Uruguay", "Guyana", "Suriname", "Trinidad", "Bahamas", "Barbados", "Fiji", "Papua New Guinea", "Samoa", "Tonga", "Luxembourg", "Monaco", "Liechtenstein", "Andorra", "Malta", "Cyprus", "Tunisia", "Libya", "Sudan", "Somalia", "Zimbabwe"]
+        };
+
+        let players = [];
+        let customCategories = {};
+        let currentGameMode = 'classic'; // 'classic' or 'variant'
+        // Word pairs for variant mode - bidirectional mappings
+        const wordPairs = {
+            "Food": {
+                "Pizza": "Pasta", "Pasta": "Pizza",
+                "Burger": "Hot Dog", "Hot Dog": "Burger",
+                "Taco": "Burrito", "Burrito": "Taco",
+                "Sushi": "Ramen", "Ramen": "Sushi",
+                "Steak": "Ribs", "Ribs": "Steak",
+                "Chicken": "Turkey", "Turkey": "Chicken",
+                "Bacon": "Sausage", "Sausage": "Bacon",
+                "Cheese": "Butter", "Butter": "Cheese",
+                "Bread": "Toast", "Toast": "Bread",
+                "Rice": "Quinoa", "Quinoa": "Rice",
+                "Potato": "Sweet Potato", "Sweet Potato": "Potato",
+                "Fries": "Onion Rings", "Onion Rings": "Fries",
+                "Ice Cream": "Gelato", "Gelato": "Ice Cream",
+                "Cake": "Pie", "Pie": "Cake",
+                "Cookie": "Brownie", "Brownie": "Cookie",
+                "Donut": "Croissant", "Croissant": "Donut",
+                "Pancake": "Waffle", "Waffle": "Pancake",
+                "Apple": "Pear", "Pear": "Apple",
+                "Banana": "Plantain", "Plantain": "Banana",
+                "Orange": "Grapefruit", "Grapefruit": "Orange",
+                "Strawberry": "Raspberry", "Raspberry": "Strawberry",
+                "Watermelon": "Cantaloupe", "Cantaloupe": "Watermelon",
+                "Grape": "Cherry", "Cherry": "Grape",
+                "Carrot": "Celery", "Celery": "Carrot",
+                "Broccoli": "Cauliflower", "Cauliflower": "Broccoli",
+                "Corn": "Peas", "Peas": "Corn",
+                "Tomato": "Cucumber", "Cucumber": "Tomato",
+                "Smoothie": "Milkshake", "Milkshake": "Smoothie",
+                "Coffee": "Tea", "Tea": "Coffee",
+                "Lemonade": "Juice", "Juice": "Lemonade",
+                "Soup": "Stew", "Stew": "Soup",
+                "Salad": "Coleslaw", "Coleslaw": "Salad",
+                "Dumpling": "Spring Roll", "Spring Roll": "Dumpling",
+                "Wings": "Nuggets", "Nuggets": "Wings",
+                "Nachos": "Quesadilla", "Quesadilla": "Nachos",
+                "Enchilada": "Tamale", "Tamale": "Enchilada",
+                "Muffin": "Cupcake", "Cupcake": "Muffin",
+                "Sorbet": "Pudding", "Pudding": "Sorbet",
+                "Tiramisu": "Cheesecake", "Cheesecake": "Tiramisu",
+                "Bagel": "Pretzel", "Pretzel": "Bagel",
+                "Cereal": "Oatmeal", "Oatmeal": "Cereal",
+                "Blueberry": "Kiwi", "Kiwi": "Blueberry",
+                "Mango": "Pineapple", "Pineapple": "Mango",
+                "Peach": "Plum", "Plum": "Peach",
+                "Spinach": "Lettuce", "Lettuce": "Spinach",
+                "Beans": "Onion", "Onion": "Beans",
+                "Chips": "Crackers", "Crackers": "Chips",
+                "Peanut Butter": "Jelly", "Jelly": "Peanut Butter",
+                "Honey": "Syrup", "Syrup": "Honey",
+                "Cream Cheese": "Cottage Cheese", "Cottage Cheese": "Cream Cheese",
+                "Mozzarella": "Parmesan", "Parmesan": "Mozzarella",
+                "Cheddar": "Gouda", "Gouda": "Cheddar",
+                "Brie": "Feta", "Feta": "Brie",
+                "Swiss": "Blue Cheese", "Blue Cheese": "Swiss",
+                "Guacamole": "Hummus", "Hummus": "Guacamole",
+                "Salsa": "Ketchup", "Ketchup": "Salsa",
+                "Mustard": "Mayo", "Mayo": "Mustard",
+                "Ranch": "BBQ Sauce", "BBQ Sauce": "Ranch",
+                "Soy Sauce": "Teriyaki", "Teriyaki": "Soy Sauce",
+                "Hot Sauce": "Vinegar", "Vinegar": "Hot Sauce",
+                "Alfredo": "Marinara", "Marinara": "Alfredo",
+                "Pesto": "Olive Oil", "Olive Oil": "Pesto",
+                "Chocolate": "Candy", "Candy": "Chocolate",
+                "Gummy Bears": "Lollipop", "Lollipop": "Gummy Bears",
+                "Cotton Candy": "Marshmallow", "Marshmallow": "Cotton Candy",
+                "Fudge": "Caramel", "Caramel": "Fudge",
+                "Toffee": "Granola", "Granola": "Toffee",
+                "Stir Fry": "Curry", "Curry": "Stir Fry",
+                "Shrimp": "Crab", "Crab": "Shrimp",
+                "Lobster": "Fish", "Fish": "Lobster",
+                "Ham": "Empanada", "Empanada": "Ham",
+                "Dim Sum": "Tempura", "Tempura": "Dim Sum",
+                "Spaghetti": "Lasagna", "Lasagna": "Spaghetti",
+                "Macaron": "Jam", "Jam": "Macaron",
+                "Avocado": "Garlic", "Garlic": "Avocado",
+                "Pepper": "Coconut Oil", "Coconut Oil": "Pepper"
+            },
+            "Animals": {
+                "Dog": "Cat", "Cat": "Dog",
+                "Lion": "Tiger", "Tiger": "Lion",
+                "Bear": "Wolf", "Wolf": "Bear",
+                "Elephant": "Rhino", "Rhino": "Elephant",
+                "Shark": "Whale", "Whale": "Shark",
+                "Dolphin": "Porpoise", "Porpoise": "Dolphin",
+                "Eagle": "Hawk", "Hawk": "Eagle",
+                "Penguin": "Puffin", "Puffin": "Penguin",
+                "Snake": "Lizard", "Lizard": "Snake",
+                "Frog": "Toad", "Toad": "Frog",
+                "Horse": "Zebra", "Zebra": "Horse",
+                "Cow": "Buffalo", "Buffalo": "Cow",
+                "Pig": "Boar", "Boar": "Pig",
+                "Sheep": "Goat", "Goat": "Sheep",
+                "Chicken": "Turkey", "Turkey": "Chicken",
+                "Duck": "Goose", "Goose": "Duck",
+                "Rabbit": "Hare", "Hare": "Rabbit",
+                "Mouse": "Rat", "Rat": "Mouse",
+                "Monkey": "Ape", "Ape": "Monkey",
+                "Giraffe": "Okapi", "Okapi": "Giraffe",
+                "Owl": "Parrot", "Parrot": "Owl",
+                "Crow": "Raven", "Raven": "Crow",
+                "Butterfly": "Moth", "Moth": "Butterfly",
+                "Bee": "Wasp", "Wasp": "Bee",
+                "Octopus": "Squid", "Squid": "Octopus",
+                "Crab": "Lobster", "Lobster": "Crab",
+                "Turtle": "Tortoise", "Tortoise": "Turtle",
+                "Crocodile": "Alligator", "Alligator": "Crocodile",
+                "Fox": "Coyote", "Coyote": "Fox",
+                "Deer": "Elk", "Elk": "Deer",
+                "Gorilla": "Chimpanzee", "Chimpanzee": "Gorilla",
+                "Panda": "Koala", "Koala": "Panda",
+                "Seal": "Walrus", "Walrus": "Seal",
+                "Bat": "Raccoon", "Raccoon": "Bat",
+                "Hamster": "Guinea Pig", "Guinea Pig": "Hamster",
+                "Moose": "Hippo", "Hippo": "Moose",
+                "Orangutan": "Armadillo", "Armadillo": "Orangutan",
+                "Anteater": "Sloth", "Sloth": "Anteater",
+                "Beaver": "Otter", "Otter": "Beaver",
+                "Jellyfish": "Starfish", "Starfish": "Jellyfish",
+                "Shrimp": "Flamingo", "Flamingo": "Shrimp",
+                "Swan": "Peacock", "Peacock": "Swan",
+                "Pigeon": "Sparrow", "Sparrow": "Pigeon",
+                "Robin": "Mockingbird", "Mockingbird": "Robin",
+                "Woodpecker": "Hummingbird", "Hummingbird": "Woodpecker",
+                "Salamander": "Ant", "Ant": "Salamander",
+                "Scorpion": "Spider", "Spider": "Scorpion",
+                "Ladybug": "Dragonfly", "Dragonfly": "Ladybug",
+                "Grasshopper": "Cricket", "Cricket": "Grasshopper",
+                "Beetle": "Caterpillar", "Caterpillar": "Beetle",
+                "Snail": "Slug", "Slug": "Snail",
+                "Worm": "Camel", "Camel": "Worm",
+                "Donkey": "Mule", "Mule": "Donkey",
+                "Bison": "Llama", "Llama": "Bison",
+                "Alpaca": "Leopard", "Leopard": "Alpaca",
+                "Cheetah": "Jaguar", "Jaguar": "Cheetah",
+                "Cougar": "Lynx", "Lynx": "Cougar",
+                "Panther": "Hyena", "Hyena": "Panther",
+                "Skunk": "Porcupine", "Porcupine": "Skunk",
+                "Hedgehog": "Mole", "Mole": "Hedgehog",
+                "Chipmunk": "Squirrel", "Squirrel": "Chipmunk",
+                "Prairie Dog": "Ferret", "Ferret": "Prairie Dog",
+                "Weasel": "Badger", "Badger": "Weasel",
+                "Wolverine": "Possum", "Possum": "Wolverine",
+                "Platypus": "Emu", "Emu": "Platypus",
+                "Ostrich": "Vulture", "Vulture": "Ostrich",
+                "Pelican": "Stork", "Stork": "Pelican",
+                "Crane": "Heron", "Heron": "Crane",
+                "Seagull": "Albatross", "Albatross": "Seagull",
+                "Condor": "Toucan", "Toucan": "Condor",
+                "Cockatoo": "Macaw", "Macaw": "Cockatoo",
+                "Parakeet": "Canary", "Canary": "Parakeet",
+                "Finch": "Cardinal", "Cardinal": "Finch",
+                "Blue Jay": "Nightingale", "Nightingale": "Blue Jay",
+                "Kingfisher": "Python", "Python": "Kingfisher",
+                "Cobra": "Viper", "Viper": "Cobra",
+                "Rattlesnake": "Anaconda", "Anaconda": "Rattlesnake",
+                "Boa": "Kangaroo", "Kangaroo": "Boa"
+            },
+            "Sports": {
+                "Soccer": "Football", "Football": "Soccer",
+                "Basketball": "Volleyball", "Volleyball": "Basketball",
+                "Tennis": "Badminton", "Badminton": "Tennis",
+                "Baseball": "Softball", "Softball": "Baseball",
+                "Hockey": "Lacrosse", "Lacrosse": "Hockey",
+                "Golf": "Mini Golf", "Mini Golf": "Golf",
+                "Swimming": "Diving", "Diving": "Swimming",
+                "Boxing": "MMA", "MMA": "Boxing",
+                "Wrestling": "Judo", "Judo": "Wrestling",
+                "Skiing": "Snowboarding", "Snowboarding": "Skiing",
+                "Surfing": "Bodyboarding", "Bodyboarding": "Surfing",
+                "Gymnastics": "Cheerleading", "Cheerleading": "Gymnastics",
+                "Marathon": "Half Marathon", "Half Marathon": "Marathon",
+                "Cycling": "BMX", "BMX": "Cycling",
+                "Bowling": "Bocce", "Bocce": "Bowling",
+                "Archery": "Darts", "Darts": "Archery",
+                "Rock Climbing": "Bouldering", "Bouldering": "Rock Climbing",
+                "Skateboarding": "Rollerblading", "Rollerblading": "Skateboarding",
+                "Karate": "Taekwondo", "Taekwondo": "Karate",
+                "Yoga": "Pilates", "Pilates": "Yoga",
+                "Weightlifting": "Powerlifting", "Powerlifting": "Weightlifting",
+                "Track and Field": "Cross Country", "Cross Country": "Track and Field",
+                "Cricket": "Rounders", "Rounders": "Cricket",
+                "Rugby": "Handball", "Handball": "Rugby",
+                "Table Tennis": "Pool", "Pool": "Table Tennis",
+                "Skating": "Figure Skating", "Figure Skating": "Skating",
+                "Water Polo": "Synchronized Swimming", "Synchronized Swimming": "Water Polo",
+                "Rowing": "Kayaking", "Kayaking": "Rowing",
+                "Canoeing": "Sailing", "Sailing": "Canoeing",
+                "Triathlon": "Decathlon", "Decathlon": "Triathlon",
+                "Pentathlon": "Pole Vault", "Pole Vault": "Pentathlon",
+                "High Jump": "Long Jump", "Long Jump": "High Jump",
+                "Shot Put": "Javelin", "Javelin": "Shot Put",
+                "Discus": "Hammer Throw", "Hammer Throw": "Discus",
+                "Curling": "Bobsled", "Bobsled": "Curling",
+                "Luge": "Skeleton", "Skeleton": "Luge",
+                "Biathlon": "Downhill", "Downhill": "Biathlon",
+                "Slalom": "Moguls", "Moguls": "Slalom",
+                "Halfpipe": "Mountain Biking", "Mountain Biking": "Halfpipe",
+                "Motocross": "NASCAR", "NASCAR": "Motocross",
+                "Formula 1": "Rally Racing", "Rally Racing": "Formula 1",
+                "Drag Racing": "Horseback Riding", "Horseback Riding": "Drag Racing",
+                "Polo": "Rodeo", "Rodeo": "Polo",
+                "Bull Riding": "Parkour", "Parkour": "Bull Riding",
+                "Martial Arts": "Jiu Jitsu", "Jiu Jitsu": "Martial Arts",
+                "Kickboxing": "Sumo", "Sumo": "Kickboxing",
+                "Kendo": "Tai Chi", "Tai Chi": "Kendo",
+                "Aerobics": "Zumba", "Zumba": "Aerobics",
+                "Crossfit": "Bodybuilding", "Bodybuilding": "Crossfit",
+                "Strongman": "Dance", "Dance": "Strongman",
+                "Speed Skating": "Rhythmic Gymnastics", "Rhythmic Gymnastics": "Speed Skating",
+                "Running": "Fencing", "Fencing": "Running",
+                "Snooker": "Tennis", "Tennis": "Snooker"
+            },
+            "Games": {
+                "Minecraft": "Terraria", "Terraria": "Minecraft",
+                "Fortnite": "PUBG", "PUBG": "Fortnite",
+                "Call of Duty": "Battlefield", "Battlefield": "Call of Duty",
+                "FIFA": "PES", "PES": "FIFA",
+                "Pokemon": "Digimon", "Digimon": "Pokemon",
+                "Zelda": "Skyrim", "Skyrim": "Zelda",
+                "Mario": "Sonic", "Sonic": "Mario",
+                "League of Legends": "Dota 2", "Dota 2": "League of Legends",
+                "Valorant": "Counter-Strike", "Counter-Strike": "Valorant",
+                "Overwatch": "Team Fortress", "Team Fortress": "Overwatch",
+                "Apex Legends": "Warzone", "Warzone": "Apex Legends",
+                "Chess": "Checkers", "Checkers": "Chess",
+                "Poker": "Blackjack", "Blackjack": "Poker",
+                "Monopoly": "Life", "Life": "Monopoly",
+                "UNO": "Phase 10", "Phase 10": "UNO",
+                "Tetris": "Puyo Puyo", "Puyo Puyo": "Tetris",
+                "Pac-Man": "Ms. Pac-Man", "Ms. Pac-Man": "Pac-Man",
+                "Candy Crush": "Bejeweled", "Bejeweled": "Candy Crush",
+                "Among Us": "Town of Salem", "Town of Salem": "Among Us",
+                "Fall Guys": "Stumble Guys", "Stumble Guys": "Fall Guys",
+                "Solitaire": "FreeCell", "FreeCell": "Solitaire",
+                "Dark Souls": "Elden Ring", "Elden Ring": "Dark Souls",
+                "Hades": "Dead Cells", "Dead Cells": "Hades",
+                "Portal": "Portal 2", "Portal 2": "Portal",
+                "Rocket League": "Supersonic Acrobatic", "Supersonic Acrobatic": "Rocket League",
+                "Forza": "Gran Turismo", "Gran Turismo": "Forza",
+                "NBA 2K": "NBA Live", "NBA Live": "NBA 2K",
+                "GTA": "Red Dead Redemption", "Red Dead Redemption": "GTA",
+                "The Witcher": "Assassin's Creed", "Assassin's Creed": "The Witcher",
+                "Animal Crossing": "Stardew Valley", "Stardew Valley": "Animal Crossing",
+                "Sims": "Civilization", "Civilization": "Sims",
+                "Age of Empires": "StarCraft", "StarCraft": "Age of Empires",
+                "Warcraft": "Hearthstone", "Hearthstone": "Warcraft",
+                "Magic The Gathering": "Yu-Gi-Oh", "Yu-Gi-Oh": "Magic The Gathering",
+                "Minesweeper": "Sudoku", "Sudoku": "Minesweeper",
+                "Wordle": "2048", "2048": "Wordle",
+                "Flappy Bird": "Geometry Dash", "Geometry Dash": "Flappy Bird",
+                "Plants vs Zombies": "Five Nights at Freddy's", "Five Nights at Freddy's": "Plants vs Zombies",
+                "Cuphead": "Hollow Knight", "Hollow Knight": "Cuphead",
+                "Celeste": "Undertale", "Undertale": "Celeste",
+                "Bloodborne": "Sekiro", "Sekiro": "Bloodborne",
+                "Monster Hunter": "Resident Evil", "Resident Evil": "Monster Hunter",
+                "Silent Hill": "Dead Space", "Dead Space": "Silent Hill",
+                "Bioshock": "Half-Life", "Half-Life": "Bioshock",
+                "Left 4 Dead": "Destiny", "Destiny": "Left 4 Dead",
+                "Borderlands": "Diablo", "Diablo": "Borderlands",
+                "Path of Exile": "Escape from Tarkov", "Escape from Tarkov": "Path of Exile",
+                "Rainbow Six": "Payday", "Payday": "Rainbow Six",
+                "Metal Gear Solid": "Splinter Cell", "Splinter Cell": "Metal Gear Solid",
+                "Hitman": "Tomb Raider", "Tomb Raider": "Hitman",
+                "Final Fantasy": "Dragon Quest", "Dragon Quest": "Final Fantasy",
+                "Persona": "Kingdom Hearts", "Kingdom Hearts": "Persona",
+                "Yakuza": "Nier", "Nier": "Yakuza",
+                "Crash Bandicoot": "Spyro", "Spyro": "Crash Bandicoot",
+                "Rayman": "Roblox", "Roblox": "Rayman",
+                "God of War": "Spider-Man", "Spider-Man": "God of War",
+                "Batman Arkham": "Mortal Kombat", "Mortal Kombat": "Batman Arkham",
+                "Street Fighter": "Tekken", "Tekken": "Street Fighter",
+                "Super Smash Bros": "Brawl Stars", "Brawl Stars": "Super Smash Bros",
+                "Angry Birds": "Temple Run", "Temple Run": "Angry Birds",
+                "Subway Surfers": "Clash of Clans", "Clash of Clans": "Subway Surfers",
+                "Clash Royale": "Scrabble", "Scrabble": "Clash Royale",
+                "Madden": "Far Cry", "Far Cry": "Madden",
+                "Halo": "Gears of War", "Gears of War": "Halo",
+                "Uncharted": "The Last of Us", "The Last of Us": "Uncharted",
+                "Need for Speed": "Sonic", "Sonic": "Need for Speed"
+            },
+            "Countries": {
+                "USA": "Canada", "Canada": "USA",
+                "Mexico": "Guatemala", "Guatemala": "Mexico",
+                "Brazil": "Argentina", "Argentina": "Brazil",
+                "Chile": "Peru", "Peru": "Chile",
+                "France": "Germany", "Germany": "France",
+                "Italy": "Spain", "Spain": "Italy",
+                "UK": "Ireland", "Ireland": "UK",
+                "Portugal": "Greece", "Greece": "Portugal",
+                "China": "India", "India": "China",
+                "Japan": "South Korea", "South Korea": "Japan",
+                "Australia": "New Zealand", "New Zealand": "Australia",
+                "Russia": "Ukraine", "Ukraine": "Russia",
+                "Egypt": "Morocco", "Morocco": "Egypt",
+                "South Africa": "Nigeria", "Nigeria": "South Africa",
+                "Kenya": "Tanzania", "Tanzania": "Kenya",
+                "Saudi Arabia": "UAE", "UAE": "Saudi Arabia",
+                "Iran": "Iraq", "Iraq": "Iran",
+                "Israel": "Jordan", "Jordan": "Israel",
+                "Turkey": "Lebanon", "Lebanon": "Turkey",
+                "Sweden": "Norway", "Norway": "Sweden",
+                "Denmark": "Finland", "Finland": "Denmark",
+                "Poland": "Czech Republic", "Czech Republic": "Poland",
+                "Austria": "Switzerland", "Switzerland": "Austria",
+                "Algeria": "Ethiopia", "Ethiopia": "Algeria",
+                "Ghana": "Colombia", "Colombia": "Ghana",
+                "Qatar": "Kuwait", "Kuwait": "Qatar",
+                "Oman": "Yemen", "Yemen": "Oman",
+                "Afghanistan": "Kazakhstan", "Kazakhstan": "Afghanistan",
+                "Uzbekistan": "Mongolia", "Mongolia": "Uzbekistan",
+                "Nepal": "Sri Lanka", "Sri Lanka": "Nepal",
+                "Myanmar": "Cambodia", "Cambodia": "Myanmar",
+                "Laos": "Croatia", "Croatia": "Laos",
+                "Serbia": "Slovenia", "Slovenia": "Serbia",
+                "Slovakia": "Bulgaria", "Bulgaria": "Slovakia",
+                "Lithuania": "Latvia", "Latvia": "Lithuania",
+                "Estonia": "Belarus", "Belarus": "Estonia",
+                "Moldova": "Armenia", "Armenia": "Moldova",
+                "Georgia": "Azerbaijan", "Azerbaijan": "Georgia",
+                "Cuba": "Jamaica", "Jamaica": "Cuba",
+                "Haiti": "Dominican Republic", "Dominican Republic": "Haiti",
+                "Puerto Rico": "Costa Rica", "Costa Rica": "Puerto Rico",
+                "Panama": "Honduras", "Honduras": "Panama",
+                "El Salvador": "Nicaragua", "Nicaragua": "El Salvador",
+                "Bolivia": "Ecuador", "Ecuador": "Bolivia",
+                "Paraguay": "Uruguay", "Uruguay": "Paraguay",
+                "Guyana": "Suriname", "Suriname": "Guyana",
+                "Trinidad": "Bahamas", "Bahamas": "Trinidad",
+                "Barbados": "Fiji", "Fiji": "Barbados",
+                "Papua New Guinea": "Samoa", "Samoa": "Papua New Guinea",
+                "Tonga": "Luxembourg", "Luxembourg": "Tonga",
+                "Monaco": "Liechtenstein", "Liechtenstein": "Monaco",
+                "Andorra": "Malta", "Malta": "Andorra",
+                "Cyprus": "Tunisia", "Tunisia": "Cyprus",
+                "Libya": "Sudan", "Sudan": "Libya",
+                "Somalia": "Zimbabwe", "Zimbabwe": "Somalia",
+                "Venezuela": "North Korea", "North Korea": "Venezuela",
+                "Pakistan": "Bangladesh", "Bangladesh": "Pakistan",
+                "Indonesia": "Thailand", "Thailand": "Indonesia",
+                "Vietnam": "Philippines", "Philippines": "Vietnam",
+                "Malaysia": "Singapore", "Singapore": "Malaysia",
+                "Netherlands": "Belgium", "Belgium": "Netherlands",
+                "Iceland": "Romania", "Romania": "Iceland",
+                "Syria": "Hungary", "Hungary": "Syria"
+            },
+            "Locations": {
+                "Beach": "Lake", "Lake": "Beach",
+                "Mountain": "Hill", "Hill": "Mountain",
+                "Desert": "Tundra", "Tundra": "Desert",
+                "Forest": "Jungle", "Jungle": "Forest",
+                "Airport": "Train Station", "Train Station": "Airport",
+                "Hospital": "Clinic", "Clinic": "Hospital",
+                "School": "University", "University": "School",
+                "Library": "Bookstore", "Bookstore": "Library",
+                "Museum": "Gallery", "Gallery": "Museum",
+                "Park": "Garden", "Garden": "Park",
+                "Zoo": "Aquarium", "Aquarium": "Zoo",
+                "Stadium": "Arena", "Arena": "Stadium",
+                "Restaurant": "Cafe", "Cafe": "Restaurant",
+                "Hotel": "Motel", "Motel": "Hotel",
+                "Mall": "Shopping Center", "Shopping Center": "Mall",
+                "Bank": "Credit Union", "Credit Union": "Bank",
+                "Church": "Temple", "Temple": "Church",
+                "Castle": "Palace", "Palace": "Castle",
+                "Bridge": "Tunnel", "Tunnel": "Bridge",
+                "Lighthouse": "Watchtower", "Watchtower": "Lighthouse",
+                "Farm": "Ranch", "Ranch": "Farm",
+                "Factory": "Warehouse", "Warehouse": "Factory",
+                "Gym": "Fitness Center", "Fitness Center": "Gym",
+                "Pool": "Hot Tub", "Hot Tub": "Pool",
+                "City": "Village", "Village": "City",
+                "Island": "Valley", "Valley": "Island",
+                "River": "Ocean", "Ocean": "River",
+                "Cave": "Canyon", "Canyon": "Cave",
+                "Waterfall": "Cliff", "Cliff": "Waterfall",
+                "Harbor": "Marina", "Marina": "Harbor",
+                "Vineyard": "Office", "Office": "Vineyard",
+                "Spa": "Salon", "Salon": "Spa",
+                "Barbershop": "Laundromat", "Laundromat": "Barbershop",
+                "Gas Station": "Car Wash", "Car Wash": "Gas Station",
+                "Parking Lot": "Garage", "Garage": "Parking Lot",
+                "Workshop": "Bakery", "Bakery": "Workshop",
+                "Butcher": "Deli", "Deli": "Butcher",
+                "Pharmacy": "Dentist", "Dentist": "Pharmacy",
+                "Vet": "Courthouse", "Courthouse": "Vet",
+                "Prison": "Embassy", "Embassy": "Prison",
+                "Planetarium": "Observatory", "Observatory": "Planetarium",
+                "Amusement Park": "Carnival", "Carnival": "Amusement Park",
+                "Circus": "Concert Hall", "Concert Hall": "Circus",
+                "Opera House": "Casino", "Casino": "Opera House",
+                "Nightclub": "Bar", "Bar": "Nightclub",
+                "Pub": "Brewery", "Brewery": "Pub",
+                "Winery": "Distillery", "Distillery": "Winery",
+                "Cemetery": "Memorial", "Memorial": "Cemetery",
+                "Monument": "Ruins", "Ruins": "Monument",
+                "Campground": "Trail", "Trail": "Campground",
+                "Pier": "Dock", "Dock": "Pier",
+                "Boardwalk": "Plaza", "Plaza": "Boardwalk",
+                "Square": "Fountain", "Fountain": "Square",
+                "Theater": "Volcano", "Volcano": "Theater",
+                "Mosque": "Post Office", "Post Office": "Mosque",
+                "Police Station": "Fire Station", "Fire Station": "Police Station",
+                "Supermarket": "Tower", "Tower": "Supermarket"
+            },
+            "Brands": {
+                "Nike": "Adidas", "Adidas": "Nike",
+                "Apple": "Microsoft", "Microsoft": "Apple",
+                "McDonald's": "Burger King", "Burger King": "McDonald's",
+                "Starbucks": "Dunkin", "Dunkin": "Starbucks",
+                "Coca-Cola": "Pepsi", "Pepsi": "Coca-Cola",
+                "Disney": "Universal", "Universal": "Disney",
+                "Amazon": "eBay", "eBay": "Amazon",
+                "Google": "Yahoo", "Yahoo": "Google",
+                "Samsung": "LG", "LG": "Samsung",
+                "Sony": "Panasonic", "Panasonic": "Sony",
+                "Tesla": "Rivian", "Rivian": "Tesla",
+                "BMW": "Mercedes", "Mercedes": "BMW",
+                "Ferrari": "Lamborghini", "Lamborghini": "Ferrari",
+                "Gucci": "Prada", "Prada": "Gucci",
+                "Rolex": "Omega", "Omega": "Rolex",
+                "Netflix": "Hulu", "Hulu": "Netflix",
+                "YouTube": "Vimeo", "Vimeo": "YouTube",
+                "Instagram": "Snapchat", "Snapchat": "Instagram",
+                "Facebook": "Twitter", "Twitter": "Facebook",
+                "TikTok": "Reels", "Reels": "TikTok",
+                "PlayStation": "Xbox", "Xbox": "PlayStation",
+                "Toyota": "Honda", "Honda": "Toyota",
+                "Ford": "Chevrolet", "Chevrolet": "Ford",
+                "Audi": "Volkswagen", "Volkswagen": "Audi",
+                "Porsche": "Spotify", "Spotify": "Porsche",
+                "Louis Vuitton": "Chanel", "Chanel": "Louis Vuitton",
+                "Cartier": "Tiffany", "Tiffany": "Cartier",
+                "IKEA": "Walmart", "Walmart": "IKEA",
+                "Target": "Costco", "Costco": "Target",
+                "Kroger": "Whole Foods", "Whole Foods": "Kroger",
+                "7-Eleven": "CVS", "CVS": "7-Eleven",
+                "Walgreens": "Home Depot", "Home Depot": "Walgreens",
+                "Lowe's": "Best Buy", "Best Buy": "Lowe's",
+                "GameStop": "Foot Locker", "Foot Locker": "GameStop",
+                "Gap": "H&M", "H&M": "Gap",
+                "Zara": "Uniqlo", "Uniqlo": "Zara",
+                "Levi's": "Ralph Lauren", "Ralph Lauren": "Levi's",
+                "Tommy Hilfiger": "Calvin Klein", "Calvin Klein": "Tommy Hilfiger",
+                "Victoria's Secret": "L'Oreal", "L'Oreal": "Victoria's Secret",
+                "Maybelline": "MAC", "MAC": "Maybelline",
+                "Sephora": "Ulta", "Ulta": "Sephora",
+                "Gillette": "Old Spice", "Old Spice": "Gillette",
+                "Dove": "Colgate", "Colgate": "Dove",
+                "Crest": "Listerine", "Listerine": "Crest",
+                "Kleenex": "Charmin", "Charmin": "Kleenex",
+                "Bounty": "Tide", "Tide": "Bounty",
+                "Downy": "Febreze", "Febreze": "Downy",
+                "Lysol": "Clorox", "Clorox": "Lysol",
+                "Band-Aid": "Tylenol", "Tylenol": "Band-Aid",
+                "Advil": "Benadryl", "Benadryl": "Advil",
+                "Vicks": "Intel", "Intel": "Vicks",
+                "AMD": "Nvidia", "Nvidia": "AMD",
+                "Nintendo": "Puma", "Puma": "Nintendo",
+                "Reebok": "Asus", "Asus": "Reebok"
+            },
+            "Clash Royale Cards": {
+                "Hog Rider": "Ram Rider", "Ram Rider": "Hog Rider",
+                "Giant": "Royal Giant", "Royal Giant": "Giant",
+                "Golem": "Elixir Golem", "Elixir Golem": "Golem",
+                "Balloon": "Lava Hound", "Lava Hound": "Balloon",
+                "X-Bow": "Mortar", "Mortar": "X-Bow",
+                "Goblin Barrel": "Miner", "Miner": "Goblin Barrel",
+                "Wall Breakers": "Goblin Drill", "Goblin Drill": "Wall Breakers",
+                "Royal Hogs": "Battle Ram", "Battle Ram": "Royal Hogs",
+                "Wizard": "Executioner", "Executioner": "Wizard",
+                "Valkyrie": "Dark Prince", "Dark Prince": "Valkyrie",
+                "Bomber": "Firecracker", "Firecracker": "Bomber",
+                "Baby Dragon": "Electro Dragon", "Electro Dragon": "Baby Dragon",
+                "Bowler": "Magic Archer", "Magic Archer": "Bowler",
+                "Goblins": "Skeletons", "Skeletons": "Goblins",
+                "Spear Goblins": "Archers", "Archers": "Spear Goblins",
+                "Skeleton Army": "Goblin Gang", "Goblin Gang": "Skeleton Army",
+                "Minions": "Bats", "Bats": "Minions",
+                "Minion Horde": "Skeleton Barrel", "Skeleton Barrel": "Minion Horde",
+                "Barbarians": "Guards", "Guards": "Barbarians",
+                "Royal Recruits": "Rascals", "Rascals": "Royal Recruits",
+                "Mini P.E.K.K.A": "Prince", "Prince": "Mini P.E.K.K.A",
+                "P.E.K.K.A": "Mega Knight", "Mega Knight": "P.E.K.K.A",
+                "Musketeer": "Hunter", "Hunter": "Musketeer",
+                "Inferno Dragon": "Sparky", "Sparky": "Inferno Dragon",
+                "Goblin Hut": "Furnace", "Furnace": "Goblin Hut",
+                "Barbarian Hut": "Tombstone", "Tombstone": "Barbarian Hut",
+                "Witch": "Night Witch", "Night Witch": "Witch",
+                "Graveyard": "Mother Witch", "Mother Witch": "Graveyard",
+                "Electro Wizard": "Zappies", "Zappies": "Electro Wizard",
+                "Ice Wizard": "Ice Spirit", "Ice Spirit": "Ice Wizard",
+                "Freeze": "Rage", "Rage": "Freeze",
+                "Tornado": "Fisherman", "Fisherman": "Tornado",
+                "Giant Snowball": "The Log", "The Log": "Giant Snowball",
+                "Cannon": "Tesla", "Tesla": "Cannon",
+                "Inferno Tower": "Bomb Tower", "Bomb Tower": "Inferno Tower",
+                "Goblin Cage": "Fireball", "Fireball": "Goblin Cage",
+                "Arrows": "Zap", "Zap": "Arrows",
+                "Lightning": "Rocket", "Rocket": "Lightning",
+                "Earthquake": "Poison", "Poison": "Earthquake",
+                "Clone": "Mirror", "Mirror": "Clone",
+                "Bandit": "Royal Ghost", "Royal Ghost": "Bandit",
+                "Lumberjack": "Elite Barbarians", "Elite Barbarians": "Lumberjack",
+                "Cannon Cart": "Flying Machine", "Flying Machine": "Cannon Cart",
+                "Goblin Giant": "Three Musketeers", "Three Musketeers": "Goblin Giant",
+                "Golden Knight": "Archer Queen", "Archer Queen": "Golden Knight",
+                "Skeleton King": "Mighty Miner", "Mighty Miner": "Skeleton King",
+                "Monk": "Phoenix", "Phoenix": "Monk",
+                "Fire Spirit": "Electro Spirit", "Electro Spirit": "Fire Spirit",
+                "Battle Healer": "Electro Giant", "Electro Giant": "Battle Healer",
+                "Elixir Collector": "Barbarian Barrel", "Barbarian Barrel": "Elixir Collector",
+                "Heal Spirit": "Royal Delivery", "Royal Delivery": "Heal Spirit",
+                "Void": "Dagger Duchess", "Dagger Duchess": "Void",
+                "Knight": "Ice Golem", "Ice Golem": "Knight",
+                "Mega Minion": "Dart Goblin", "Dart Goblin": "Mega Minion",
+                "Princess": "Little Prince", "Little Prince": "Princess",
+                "Giant Skeleton": "Goblinstein", "Goblinstein": "Giant Skeleton"
+            }
+        };
+
+        let gameState = {
+            selectedCategories: [],
+            imposterCount: 2,
+            assignments: [],
+            currentPlayerIndex: 0,
+            theWord: "",
+            theCategory: "",
+            imposterWord: "", // For variant mode
+            startingPlayer: "",
+            direction: "",
+            viewedPlayers: [],
+            showCategory: true,
+            imposterHint: false,
+            currentHint: ""
+        };
+
+        // Cryptographically stronger random number between 0 and max (exclusive)
+        function secureRandom(max) {
+            const array = new Uint32Array(1);
+            window.crypto.getRandomValues(array);
+            return array[0] % max;
+        }
+
+        // Strong Fisher-Yates shuffle using crypto random
+        function strongShuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = secureRandom(i + 1);
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // Load custom categories from localStorage
+        function loadCustomCategories() {
+            try {
+                const saved = localStorage.getItem('imposters_customCategories');
+                if (saved) {
+                    customCategories = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error('Error loading custom categories:', e);
+                customCategories = {};
+            }
+        }
+
+        // Save custom categories to localStorage
+        function saveCustomCategories() {
+            try {
+                localStorage.setItem('imposters_customCategories', JSON.stringify(customCategories));
+                // Double-write to verify it saved
+                const verify = localStorage.getItem('imposters_customCategories');
+                if (!verify) {
+                    console.error('LocalStorage write failed');
+                }
+            } catch (e) {
+                console.error('Error saving custom categories:', e);
+            }
+        }
+
+        // Initialize category checkboxes
+        function initCategories() {
+            updateCategoryGrid();
+        }
+
+        // Add player
+        function addPlayer() {
+            const input = document.getElementById('playerNameInput');
+            const name = input.value.trim();
+            const errorDiv = document.getElementById('playerError');
+            
+            errorDiv.classList.add('hidden');
+            
+            if (!name) {
+                errorDiv.textContent = 'Please enter a player name';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (players.length >= 12) {
+                errorDiv.textContent = 'Maximum 12 players allowed';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (players.includes(name)) {
+                errorDiv.textContent = 'Player name already exists';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            players.push(name);
+            input.value = '';
+            updatePlayerList();
+        }
+
+        // Remove player
+        function removePlayer(index) {
+            players.splice(index, 1);
+            updatePlayerList();
+        }
+
+        // Update player list display
+        function updatePlayerList() {
+            const list = document.getElementById('playerList');
+            list.innerHTML = '';
+            players.forEach((player, index) => {
+                const div = document.createElement('div');
+                div.className = 'player-item';
+                div.innerHTML = `
+                    <span>${index + 1}. ${player}</span>
+                    <button class="remove-btn" onclick="removePlayer(${index})">Remove</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // Start game
+        function startGame() {
+            const imposterCount = parseInt(document.getElementById('imposterCount').value);
+            const errorDiv = document.getElementById('playerError');
+            
+            errorDiv.classList.add('hidden');
+            
+            if (players.length < 2) {
+                errorDiv.textContent = 'Need at least 2 players';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (imposterCount < 1 || imposterCount >= players.length) {
+                errorDiv.textContent = 'Imposter count must be between 1 and ' + (players.length - 1);
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Get game options
+            gameState.showCategory = document.getElementById('showCategoryOption').checked;
+            gameState.imposterHint = document.getElementById('imposterHintOption').checked;
+            
+            // Get selected categories (both default and custom)
+            const selectedCats = [];
+            const checkboxes = document.querySelectorAll('#categoryGrid input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => selectedCats.push(cb.value));
+            
+            if (selectedCats.length === 0) {
+                errorDiv.textContent = 'Please select at least one category';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            gameState.selectedCategories = selectedCats;
+            gameState.imposterCount = imposterCount;
+            
+            // VARIANT MODE vs CLASSIC MODE word selection
+            if (currentGameMode === 'variant') {
+                // VARIANT MODE: Pick a word that has a pair
+                let attempts = 0;
+                let foundPair = false;
+                let randomWord, randomCat, pairedWord;
+                
+                while (!foundPair && attempts < 100) {
+                    const shuffledCats = strongShuffle(selectedCats);
+                    randomCat = shuffledCats[0];
+                    
+                    // Skip custom categories in variant mode
+                    if (customCategories[randomCat]) {
+                        attempts++;
+                        continue;
+                    }
+                    
+                    const words = categories[randomCat];
+                    const shuffledWords = strongShuffle(words);
+                    randomWord = shuffledWords[0];
+                    
+                    // Check if this word has a pair
+                    if (wordPairs[randomCat] && wordPairs[randomCat][randomWord]) {
+                        pairedWord = wordPairs[randomCat][randomWord];
+                        foundPair = true;
+                    } else {
+                        attempts++;
+                    }
+                }
+                
+                if (!foundPair) {
+                    errorDiv.textContent = 'Could not find paired words in selected categories. Please select different categories or use Classic mode.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+                
+                gameState.theWord = randomWord;
+                gameState.imposterWord = pairedWord;
+                gameState.theCategory = randomCat;
+                gameState.imposterHint = false; // No hints in variant mode
+            } else {
+                // CLASSIC MODE: Normal word selection
+                const shuffledCats = strongShuffle(selectedCats);
+                const randomCat = shuffledCats[0];
+                
+                // Get words from either default or custom categories, then shuffle them
+                const words = categories[randomCat] || customCategories[randomCat];
+                const shuffledWords = strongShuffle(words);
+                const randomWord = shuffledWords[0];
+                
+                gameState.theWord = randomWord;
+                gameState.imposterWord = ""; // Clear imposter word in classic mode
+                gameState.theCategory = randomCat;
+                
+                // Generate hint if enabled
+                if (gameState.imposterHint) {
+                    gameState.currentHint = generateHint(randomWord, randomCat);
+                }
+            }
+            
+            // Assign roles - build array then do a strong shuffle
+            let roles = [];
+            for (let i = 0; i < players.length; i++) {
+                roles.push(i < imposterCount ? 'imposter' : 'innocent');
+            }
+            // Apply strong shuffle twice for extra randomness
+            roles = strongShuffle(roles);
+            roles = strongShuffle(roles);
+            
+            gameState.assignments = players.map((name, i) => ({
+                name: name,
+                role: roles[i]
+            }));
+            
+            gameState.currentPlayerIndex = 0;
+            gameState.viewedPlayers = []; // Reset viewed players
+            
+            // Show player selection screen
+            document.getElementById('homeScreen').classList.add('hidden');
+            document.getElementById('playerSelectionScreen').classList.remove('hidden');
+            
+            // Create player grid
+            const grid = document.getElementById('playerGrid');
+            grid.innerHTML = '';
+            players.forEach((player, index) => {
+                const div = document.createElement('div');
+                div.className = 'player-icon';
+                div.textContent = player;
+                div.onclick = () => showWord(index);
+                grid.appendChild(div);
+            });
+        }
+
+        // Show word to player
+        function showWord(index) {
+            // Check if already viewed
+            if (gameState.viewedPlayers.includes(index)) {
+                return;
+            }
+            
+            const assignment = gameState.assignments[index];
+            
+            // Determine what word to show based on mode and role
+            let word;
+            if (currentGameMode === 'variant') {
+                // In variant mode, show imposterWord to imposters, normal word to innocents
+                word = assignment.role === 'imposter' ? gameState.imposterWord : gameState.theWord;
+            } else {
+                // In classic mode, show "IMPOSTER" to imposters, normal word to innocents
+                word = assignment.role === 'imposter' ? 'IMPOSTER' : gameState.theWord;
+            }
+            
+            const wordDisplayEl = document.getElementById('wordDisplay');
+            wordDisplayEl.textContent = word;
+            wordDisplayEl.className = assignment.role === 'imposter' ? 'word-display imposter-word' : 'word-display';
+            
+            // Dynamically adjust font size to prevent word wrapping
+            // Reset to default size first
+            wordDisplayEl.style.fontSize = '3em';
+            
+            // Check if text overflows
+            setTimeout(() => {
+                const containerWidth = wordDisplayEl.parentElement.offsetWidth - 40; // padding
+                wordDisplayEl.style.whiteSpace = 'nowrap';
+                
+                // Gradually reduce font size if needed
+                let fontSize = 3;
+                while (wordDisplayEl.scrollWidth > containerWidth && fontSize > 1.2) {
+                    fontSize -= 0.1;
+                    wordDisplayEl.style.fontSize = fontSize + 'em';
+                }
+            }, 0);
+            
+            // Show category only if option is enabled
+            if (gameState.showCategory) {
+                document.getElementById('categoryDisplayWord').textContent = `Category: ${gameState.theCategory}`;
+                document.getElementById('categoryDisplayWord').style.display = 'block';
+            } else {
+                document.getElementById('categoryDisplayWord').style.display = 'none';
+            }
+            
+            // Show hint for imposters if enabled (only in classic mode)
+            const hintDisplay = document.getElementById('hintDisplay');
+            if (assignment.role === 'imposter' && gameState.imposterHint && currentGameMode === 'classic') {
+                hintDisplay.textContent = `💡 Hint: ${gameState.currentHint}`;
+                hintDisplay.style.display = 'block';
+            } else {
+                hintDisplay.style.display = 'none';
+            }
+            
+            gameState.currentPlayerIndex = index;
+            gameState.viewedPlayers.push(index);
+            
+            // Mark as viewed
+            const playerIcons = document.querySelectorAll('.player-icon');
+            playerIcons[index].classList.add('viewed');
+            
+            document.getElementById('playerSelectionScreen').classList.add('hidden');
+            document.getElementById('wordRevealScreen').classList.remove('hidden');
+        }
+
+        // Next player
+        function nextPlayer() {
+            // Check if all players have seen their word
+            if (gameState.viewedPlayers.length >= players.length) {
+                // All players have viewed, show game start screen
+                gameState.startingPlayer = strongShuffle(players)[0];
+                gameState.direction = secureRandom(2) === 0 ? 'Clockwise ↻' : 'Counterclockwise ↺';
+                
+                document.getElementById('startingPlayer').textContent = gameState.startingPlayer;
+                document.getElementById('direction').textContent = gameState.direction;
+                document.getElementById('categoryDisplay').textContent = gameState.theCategory;
+                
+                // Show or hide category based on option
+                if (gameState.showCategory) {
+                    document.getElementById('categoryGameInfo').style.display = 'block';
+                } else {
+                    document.getElementById('categoryGameInfo').style.display = 'none';
+                }
+                
+                document.getElementById('wordRevealScreen').classList.add('hidden');
+                document.getElementById('gameStartScreen').classList.remove('hidden');
+            } else {
+                document.getElementById('wordRevealScreen').classList.add('hidden');
+                document.getElementById('playerSelectionScreen').classList.remove('hidden');
+            }
+        }
+
+        // Show reveal results
+        function showRevealResults() {
+            document.getElementById('resultWord').textContent = gameState.theWord;
+            document.getElementById('resultCategory').textContent = gameState.theCategory;
+            
+            // Add imposter word display for variant mode
+            const gameInfoDiv = document.querySelector('#resultsScreen .game-info');
+            
+            // Remove any existing imposter word paragraph
+            const existingImposterWord = gameInfoDiv.querySelector('.variant-imposter-word');
+            if (existingImposterWord) {
+                existingImposterWord.remove();
+            }
+            
+            // Add imposter word if in variant mode
+            if (currentGameMode === 'variant' && gameState.imposterWord) {
+                const variantInfo = document.createElement('p');
+                variantInfo.className = 'variant-imposter-word';
+                variantInfo.innerHTML = '<strong>Imposter Word Was:</strong> <span style="font-size: 1.3em; color: #e74c3c;">' + gameState.imposterWord + '</span>';
+                gameInfoDiv.appendChild(variantInfo);
+            }
+            
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = '';
+            
+            gameState.assignments.forEach(assignment => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                div.innerHTML = `
+                    <span>${assignment.name}</span>
+                    <span class="${assignment.role === 'imposter' ? 'imposter-tag' : 'innocent-tag'}">
+                        ${assignment.role === 'imposter' ? '🎭 IMPOSTER' : '✓ INNOCENT'}
+                    </span>
+                `;
+                resultsList.appendChild(div);
+            });
+            
+            document.getElementById('gameStartScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+        }
+
+        // Back to home
+        function backToHome() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('gameStartScreen').classList.add('hidden');
+            document.getElementById('playerSelectionScreen').classList.add('hidden');
+            document.getElementById('wordRevealScreen').classList.add('hidden');
+            document.getElementById('homeScreen').classList.remove('hidden');
+        }
+
+        // Initialize on load
+        // Migrate old localStorage key if exists
+        try {
+            const oldData = localStorage.getItem('customCategories');
+            if (oldData && !localStorage.getItem('imposters_customCategories')) {
+                localStorage.setItem('imposters_customCategories', oldData);
+                localStorage.removeItem('customCategories');
+            }
+        } catch(e) {}
+        loadCustomCategories(); // Load saved custom categories first
+        initCategories();
+        updateCustomCategoriesList(); // Show any saved custom categories
+
+        // Generate hint specific to the word
+        function generateHint(word, category) {
+            // Specific hints for common words
+            const specificHints = {
+                // Objects - hints suggest a property shared by several objects
+                "Lamp": "Electric", "Chair": "Wooden", "Book": "Rectangular", "Pencil": "Cylindrical",
+                "Scissors": "Handheld", "Camera": "Lens", "Mirror": "Reflective", "Clock": "Ticking",
+                "Pillow": "Bedroom", "Cup": "Ceramic", "Plate": "Ceramic", "Fork": "Utensil",
+                "Spoon": "Utensil", "Knife": "Utensil", "Umbrella": "Foldable",
+                "Backpack": "Wearable", "Phone": "Handheld", "Laptop": "Foldable",
+                "Watch": "Wearable", "Glasses": "Wearable", "Hat": "Wearable", "Shoe": "Wearable",
+                "Wallet": "Leather", "Keys": "Metal", "Remote Control": "Handheld", "Battery": "Rechargeable",
+                "Candle": "Wax", "Vase": "Ceramic", "Rug": "Woven", "Curtain": "Fabric",
+                "Blanket": "Bedroom", "Towel": "Fabric", "Toothbrush": "Bathroom", "Soap": "Bathroom",
+                "Picture Frame": "Decorative", "Poster": "Paper", "Door": "Wooden", "Window": "Glass",
+                "Table": "Wooden", "Desk": "Wooden", "Shelf": "Wooden", "Drawer": "Wooden",
+                "Cabinet": "Wooden", "Couch": "Upholstered", "Bed": "Bedroom", "Mattress": "Bedroom",
+                "TV": "Electronic", "Radio": "Electronic", "Speaker": "Electronic", "Headphones": "Wearable",
+                "Charger": "Electronic", "Lightbulb": "Electric", "Fan": "Electric", "Heater": "Electric",
+                "AC": "Electric", "Thermostat": "Wall mounted", "Vacuum": "Electric", "Broom": "Handheld",
+                "Mop": "Handheld", "Bucket": "Plastic", "Trash Can": "Cylindrical", "Recycling Bin": "Plastic",
+                "Hammer": "Handheld", "Screwdriver": "Handheld", "Wrench": "Metal", "Nail": "Metal",
+                "Screw": "Metal", "Drill": "Electric", "Saw": "Metal", "Tape": "Adhesive",
+                "Glue": "Adhesive", "Stapler": "Office", "Paperclip": "Metal", "Rubber Band": "Elastic",
+                "Envelope": "Paper", "Stamp": "Paper", "Postcard": "Rectangular", "Magazine": "Paper",
+                "Newspaper": "Paper", "Journal": "Leather", "Notebook": "Paper", "Calculator": "Electronic",
+                "Pen": "Handheld", "Eraser": "Rubber", "Ruler": "Flat", "Marker": "Cylindrical",
+                "Highlighter": "Office", "Folder": "Paper", "Binder": "Office", "Briefcase": "Leather",
+                "Suitcase": "Travel", "Luggage": "Travel", "Duffel Bag": "Fabric", "Purse": "Leather",
+                "Handbag": "Leather", "Tote Bag": "Fabric", "Messenger Bag": "Fabric", "Fanny Pack": "Wearable",
+                "Keychain": "Metal", "Sunglasses": "Wearable", "Contact Lens": "Medical", "Thermometer": "Medical",
+                "Bandage": "Medical", "Cotton Ball": "Medical", "Q-tip": "Bathroom", "Tissue": "Paper",
+                "Paper Towel": "Paper", "Toilet Paper": "Bathroom", "Shampoo": "Bathroom", "Conditioner": "Bathroom",
+                "Lotion": "Bathroom", "Deodorant": "Bathroom", "Razor": "Metal", "Shaving Cream": "Bathroom",
+                "Cologne": "Bathroom", "Makeup Brush": "Cosmetic", "Nail Polish": "Cosmetic", "Hair Dryer": "Electric",
+                "Straightener": "Electric", "Curling Iron": "Electric", "Tweezers": "Metal", "Nail Clipper": "Metal",
+                "Flashlight": "Handheld", "Lantern": "Portable", "Candle Holder": "Decorative", "Incense": "Aromatic",
+                "Air Freshener": "Aromatic", "Perfume": "Aromatic",
+
+                // Food - hints suggest cuisine, texture, or preparation style shared by several foods
+                "Pizza": "Italian", "Burger": "Grilled", "Hot Dog": "Grilled", "Taco": "Mexican",
+                "Burrito": "Mexican", "Pasta": "Italian", "Sushi": "Japanese", "Steak": "Grilled",
+                "Chicken": "Grilled", "Bacon": "Cured", "Cheese": "Dairy", "Bread": "Baked",
+                "Rice": "Boiled", "Potato": "Starchy", "Fries": "Fried", "Salad": "Raw",
+                "Ice Cream": "Frozen", "Cake": "Baked", "Cookie": "Baked", "Donut": "Fried",
+                "Pancake": "Breakfast", "Waffle": "Breakfast", "Cereal": "Breakfast", "Yogurt": "Dairy",
+                "Apple": "Orchard", "Banana": "Tropical", "Orange": "Citrus", "Strawberry": "Sweet",
+                "Watermelon": "Summer", "Grape": "Vineyard", "Pineapple": "Tropical",
+                "Carrot": "Root", "Broccoli": "Steamed", "Corn": "Grilled", "Tomato": "Garden",
+                "Egg": "Breakfast", "Milk": "Dairy", "Butter": "Dairy", "Honey": "Natural",
+                "Chocolate": "Sweet", "Candy": "Sweet", "Popcorn": "Savory", "Chips": "Fried",
+                "Spaghetti": "Italian", "Lasagna": "Italian", "Wings": "Fried", "Nuggets": "Fried",
+                "Nachos": "Mexican", "Soup": "Simmered", "Chili": "Simmered", "BBQ": "Smoked",
+                "Smoothie": "Blended", "Milkshake": "Dairy", "Pretzel": "Baked", "Hummus": "Mediterranean",
+                "Ramen": "Japanese", "Dim Sum": "Chinese", "Dumpling": "Steamed", "Spring Roll": "Asian",
+                "Tempura": "Japanese", "Ribs": "Smoked", "Enchilada": "Mexican", "Tamale": "Mexican",
+                "Empanada": "Latin", "Pie": "Baked", "Brownie": "Baked", "Muffin": "Baked",
+                "Cupcake": "Baked", "Crepe": "French", "Gelato": "Italian", "Sorbet": "Frozen",
+                "Pudding": "Sweet", "Custard": "Baked", "Cheesecake": "Baked", "Tiramisu": "Italian",
+                "Macaron": "French", "Croissant": "French", "Bagel": "Boiled", "Toast": "Baked",
+                "Oatmeal": "Breakfast", "Blueberry": "Sweet", "Raspberry": "Sweet", "Mango": "Tropical",
+                "Peach": "Stone fruit", "Pear": "Orchard", "Cherry": "Stone fruit", "Plum": "Stone fruit",
+                "Kiwi": "Tropical", "Avocado": "Fatty", "Cucumber": "Garden", "Cauliflower": "Steamed",
+                "Spinach": "Leafy", "Lettuce": "Leafy", "Peas": "Garden", "Beans": "Garden",
+                "Onion": "Savory", "Garlic": "Savory", "Pepper": "Savory", "Crackers": "Baked",
+                "Peanut Butter": "Spread", "Jelly": "Spread", "Syrup": "Sweet", "Jam": "Spread",
+                "Cream Cheese": "Dairy", "Cottage Cheese": "Dairy", "Mozzarella": "Italian", "Cheddar": "Aged",
+                "Parmesan": "Italian", "Brie": "French", "Gouda": "Dutch", "Swiss": "European",
+                "Feta": "Greek", "Blue Cheese": "Aged", "Guacamole": "Mexican", "Salsa": "Mexican",
+                "Ketchup": "Condiment", "Mustard": "Condiment", "Mayo": "Condiment", "Ranch": "Condiment",
+                "BBQ Sauce": "Condiment", "Soy Sauce": "Asian", "Hot Sauce": "Condiment", "Teriyaki": "Japanese",
+                "Alfredo": "Italian", "Marinara": "Italian", "Pesto": "Italian", "Vinegar": "Fermented",
+                "Olive Oil": "Mediterranean", "Coconut Oil": "Tropical", "Gummy Bears": "Sweet", "Lollipop": "Sweet",
+                "Cotton Candy": "Sweet", "Fudge": "Sweet", "Caramel": "Sweet", "Toffee": "Sweet",
+                "Marshmallow": "Sweet", "Granola": "Breakfast", "Quesadilla": "Mexican", "Stir Fry": "Asian",
+                "Curry": "Spiced", "Shrimp": "Seafood", "Lobster": "Seafood", "Crab": "Seafood",
+                "Fish": "Seafood", "Sausage": "Cured", "Ham": "Cured",
+
+                // Animals - hints suggest habitat, trait, or classification shared by several animals
+                "Dog": "Domesticated", "Cat": "Domesticated", "Lion": "Territorial", "Tiger": "Solitary",
+                "Bear": "Omnivore", "Elephant": "Herbivore", "Shark": "Cold blooded", "Dolphin": "Mammal",
+                "Eagle": "Territorial", "Penguin": "Cold climate", "Snake": "Cold blooded", "Frog": "Cold blooded",
+                "Horse": "Domesticated", "Cow": "Domesticated", "Pig": "Domesticated", "Sheep": "Domesticated", "Chicken": "Domesticated",
+                "Duck": "Migratory", "Rabbit": "Domesticated", "Mouse": "Rodent", "Monkey": "Omnivore",
+                "Giraffe": "Herbivore", "Zebra": "Herbivore", "Kangaroo": "Herbivore",
+                "Owl": "Territorial", "Parrot": "Tropical", "Crow": "Omnivore",
+                "Butterfly": "Migratory", "Bee": "Tropical", "Spider": "Territorial",
+                "Whale": "Mammal", "Octopus": "Cold blooded", "Crab": "Cold blooded",
+                "Turtle": "Cold blooded", "Crocodile": "Cold blooded", "Wolf": "Territorial",
+                "Fox": "Omnivore", "Deer": "Herbivore", "Gorilla": "Herbivore", "Panda": "Herbivore",
+                "Koala": "Herbivore", "Sloth": "Herbivore", "Seal": "Mammal", "Bat": "Nocturnal",
+                "Goose": "Migratory", "Turkey": "Domesticated", "Hamster": "Domesticated", "Guinea Pig": "Domesticated",
+                "Rat": "Rodent", "Moose": "Herbivore", "Elk": "Herbivore", "Hippo": "Herbivore",
+                "Rhino": "Herbivore", "Chimpanzee": "Omnivore", "Orangutan": "Herbivore", "Armadillo": "Omnivore",
+                "Anteater": "Solitary", "Beaver": "Herbivore", "Otter": "Carnivore", "Walrus": "Carnivore",
+                "Squid": "Cold blooded", "Jellyfish": "Cold blooded", "Lobster": "Cold blooded", "Shrimp": "Cold blooded",
+                "Starfish": "Cold blooded", "Hawk": "Territorial", "Flamingo": "Tropical", "Swan": "Migratory",
+                "Peacock": "Tropical", "Raven": "Omnivore", "Pigeon": "Urban", "Sparrow": "Urban",
+                "Robin": "Migratory", "Woodpecker": "Territorial", "Hummingbird": "Tropical", "Lizard": "Cold blooded",
+                "Tortoise": "Cold blooded", "Alligator": "Cold blooded", "Toad": "Cold blooded", "Salamander": "Cold blooded",
+                "Ant": "Colony", "Scorpion": "Nocturnal", "Ladybug": "Territorial", "Dragonfly": "Carnivore",
+                "Grasshopper": "Herbivore", "Cricket": "Omnivore", "Beetle": "Omnivore", "Caterpillar": "Herbivore",
+                "Snail": "Herbivore", "Slug": "Herbivore", "Worm": "Omnivore", "Camel": "Herbivore",
+                "Donkey": "Domesticated", "Mule": "Domesticated", "Buffalo": "Herbivore", "Bison": "Herbivore",
+                "Llama": "Domesticated", "Alpaca": "Domesticated", "Leopard": "Solitary", "Cheetah": "Solitary",
+                "Jaguar": "Solitary", "Cougar": "Solitary", "Lynx": "Solitary", "Panther": "Solitary",
+                "Hyena": "Omnivore", "Raccoon": "Nocturnal", "Skunk": "Nocturnal", "Porcupine": "Nocturnal",
+                "Hedgehog": "Nocturnal", "Mole": "Nocturnal", "Chipmunk": "Omnivore", "Squirrel": "Omnivore",
+                "Prairie Dog": "Herbivore", "Ferret": "Domesticated", "Weasel": "Carnivore", "Badger": "Omnivore",
+                "Wolverine": "Carnivore", "Possum": "Nocturnal", "Platypus": "Mammal", "Emu": "Flightless",
+                "Ostrich": "Flightless", "Vulture": "Carnivore", "Pelican": "Coastal", "Stork": "Migratory",
+                "Crane": "Migratory", "Heron": "Coastal", "Seagull": "Coastal", "Albatross": "Migratory",
+                "Condor": "Carnivore", "Toucan": "Tropical", "Cockatoo": "Tropical", "Macaw": "Tropical",
+                "Parakeet": "Tropical", "Canary": "Domesticated", "Finch": "Migratory", "Cardinal": "Territorial",
+                "Blue Jay": "Territorial", "Mockingbird": "Territorial", "Nightingale": "Migratory", "Kingfisher": "Territorial",
+                "Python": "Cold blooded", "Cobra": "Cold blooded", "Viper": "Cold blooded", "Rattlesnake": "Cold blooded",
+                "Anaconda": "Cold blooded", "Boa": "Cold blooded",
+
+                // Countries - hints suggest region or broad geographic trait shared by many countries
+                "USA": "Western", "Canada": "Northern", "Mexico": "Latin",
+                "Brazil": "Southern", "Argentina": "Southern", "Chile": "Coastal", "Colombia": "Equatorial",
+                "France": "Western", "Germany": "Central", "Italy": "Mediterranean", "Spain": "Mediterranean",
+                "China": "Eastern", "Japan": "Eastern", "Australia": "Southern", "Russia": "Northern",
+                "UK": "Northern", "India": "Southern", "Egypt": "Northern", "Greece": "Mediterranean",
+                "Turkey": "Eastern", "Sweden": "Northern", "Norway": "Northern", "Switzerland": "Central",
+                "Netherlands": "Western", "Ireland": "Western", "Poland": "Central", "South Africa": "Southern",
+                "Peru": "Andean", "Venezuela": "Equatorial", "Portugal": "Western", "Belgium": "Western",
+                "Austria": "Central", "Denmark": "Northern", "Finland": "Northern", "Iceland": "Northern",
+                "Czech Republic": "Central", "Hungary": "Central", "Romania": "Eastern", "Ukraine": "Eastern",
+                "North Korea": "Eastern", "South Korea": "Eastern", "Pakistan": "Southern", "Bangladesh": "Southern",
+                "Indonesia": "Equatorial", "Thailand": "Southeast", "Vietnam": "Southeast", "Philippines": "Southeast",
+                "Malaysia": "Southeast", "Singapore": "Southeast", "New Zealand": "Southern", "Nigeria": "Western",
+                "Kenya": "Eastern", "Morocco": "Northern", "Algeria": "Northern", "Ethiopia": "Eastern",
+                "Ghana": "Western", "Saudi Arabia": "Middle Eastern", "UAE": "Middle Eastern", "Iran": "Middle Eastern",
+                "Iraq": "Middle Eastern", "Israel": "Middle Eastern", "Lebanon": "Middle Eastern", "Jordan": "Middle Eastern",
+                "Syria": "Middle Eastern", "Qatar": "Middle Eastern", "Kuwait": "Middle Eastern", "Oman": "Middle Eastern",
+                "Yemen": "Middle Eastern", "Afghanistan": "Central", "Kazakhstan": "Central", "Uzbekistan": "Central",
+                "Mongolia": "Central", "Nepal": "Southern", "Sri Lanka": "Southern", "Myanmar": "Southeast",
+                "Cambodia": "Southeast", "Laos": "Southeast", "Croatia": "Mediterranean", "Serbia": "Central",
+                "Slovenia": "Central", "Slovakia": "Central", "Bulgaria": "Eastern", "Lithuania": "Northern",
+                "Latvia": "Northern", "Estonia": "Northern", "Belarus": "Eastern", "Moldova": "Eastern",
+                "Armenia": "Eastern", "Georgia": "Eastern", "Azerbaijan": "Eastern", "Cuba": "Caribbean",
+                "Jamaica": "Caribbean", "Haiti": "Caribbean", "Dominican Republic": "Caribbean", "Puerto Rico": "Caribbean",
+                "Costa Rica": "Latin", "Panama": "Latin", "Guatemala": "Latin", "Honduras": "Latin",
+                "El Salvador": "Latin", "Nicaragua": "Latin", "Bolivia": "Andean", "Ecuador": "Andean",
+                "Paraguay": "Southern", "Uruguay": "Southern", "Guyana": "Equatorial", "Suriname": "Equatorial",
+                "Trinidad": "Caribbean", "Bahamas": "Caribbean", "Barbados": "Caribbean", "Fiji": "Pacific",
+                "Papua New Guinea": "Pacific", "Samoa": "Pacific", "Tonga": "Pacific", "Luxembourg": "Western",
+                "Monaco": "Mediterranean", "Liechtenstein": "Central", "Andorra": "Western", "Malta": "Mediterranean",
+                "Cyprus": "Mediterranean", "Tunisia": "Northern", "Libya": "Northern", "Sudan": "Eastern",
+                "Somalia": "Eastern", "Zimbabwe": "Southern",
+
+                // Sports - hints suggest style or equipment shared across multiple sports
+                "Soccer": "Outdoor", "Basketball": "Indoor", "Tennis": "Racket", "Baseball": "Outdoor",
+                "Football": "Outdoor", "Hockey": "Cold", "Golf": "Outdoor", "Swimming": "Aquatic",
+                "Boxing": "Combat", "Wrestling": "Combat", "Volleyball": "Net",
+                "Skiing": "Alpine", "Snowboarding": "Alpine", "Surfing": "Coastal",
+                "Gymnastics": "Indoor", "Marathon": "Endurance", "Cycling": "Endurance",
+                "Bowling": "Indoor", "Archery": "Target", "Fencing": "Combat",
+                "Rock Climbing": "Outdoor", "Skateboarding": "Outdoor", "BMX": "Outdoor",
+                "Karate": "Combat", "Judo": "Combat", "Yoga": "Indoor",
+                "Weightlifting": "Indoor", "Running": "Endurance", "Track and Field": "Outdoor",
+                "Curling": "Cold", "Bobsled": "Alpine", "Diving": "Aquatic",
+                "Cricket": "Outdoor", "Rugby": "Outdoor", "Table Tennis": "Indoor", "Badminton": "Racket",
+                "Skating": "Cold", "Lacrosse": "Outdoor", "Softball": "Outdoor", "Handball": "Indoor",
+                "Water Polo": "Aquatic", "Rowing": "Aquatic", "Kayaking": "Aquatic", "Canoeing": "Aquatic",
+                "Sailing": "Aquatic", "Triathlon": "Endurance", "Decathlon": "Outdoor", "Pentathlon": "Outdoor",
+                "Pole Vault": "Outdoor", "High Jump": "Outdoor", "Long Jump": "Outdoor", "Shot Put": "Outdoor",
+                "Javelin": "Outdoor", "Discus": "Outdoor", "Hammer Throw": "Outdoor", "Luge": "Alpine",
+                "Skeleton": "Alpine", "Biathlon": "Alpine", "Cross Country": "Endurance", "Downhill": "Alpine",
+                "Slalom": "Alpine", "Moguls": "Alpine", "Halfpipe": "Alpine", "Mountain Biking": "Endurance",
+                "Motocross": "Outdoor", "NASCAR": "Motorized", "Formula 1": "Motorized", "Rally Racing": "Motorized",
+                "Drag Racing": "Motorized", "Horseback Riding": "Outdoor", "Polo": "Outdoor", "Rodeo": "Outdoor",
+                "Bull Riding": "Outdoor", "Bouldering": "Indoor", "Parkour": "Outdoor", "Martial Arts": "Combat",
+                "Taekwondo": "Combat", "Jiu Jitsu": "Combat", "Kickboxing": "Combat", "MMA": "Combat",
+                "Sumo": "Combat", "Kendo": "Combat", "Tai Chi": "Indoor", "Pilates": "Indoor",
+                "Aerobics": "Indoor", "Zumba": "Indoor", "Crossfit": "Indoor", "Powerlifting": "Indoor",
+                "Bodybuilding": "Indoor", "Strongman": "Outdoor", "Cheerleading": "Indoor", "Dance": "Indoor",
+                "Figure Skating": "Cold", "Speed Skating": "Cold", "Synchronized Swimming": "Aquatic", "Rhythmic Gymnastics": "Indoor",
+
+                // Brands - hints suggest industry or broad characteristic shared by many brands
+                "Apple": "Silicon Valley", "Nike": "Endorsements", "McDonald's": "Drive-through", "Starbucks": "Chain",
+                "Coca-Cola": "Carbonated", "Disney": "Family", "Amazon": "Shipping", "Google": "Silicon Valley",
+                "Microsoft": "Silicon Valley", "Samsung": "Electronics", "Sony": "Japanese", "Nintendo": "Japanese",
+                "Tesla": "Silicon Valley", "BMW": "German", "Ferrari": "Italian", "Adidas": "German",
+                "Gucci": "Italian", "Rolex": "Swiss", "IKEA": "Scandinavian",
+                "Netflix": "Subscription", "YouTube": "Advertising", "Instagram": "Advertising",
+                "Facebook": "Advertising", "Twitter": "Advertising", "TikTok": "Advertising",
+                "Puma": "German", "Reebok": "Endorsements", "Pepsi": "Carbonated", "Burger King": "Drive-through",
+                "KFC": "Franchise", "Subway": "Franchise", "Dunkin": "Chain", "Toyota": "Japanese",
+                "Honda": "Japanese", "Ford": "American", "Mercedes": "German", "Audi": "German",
+                "Volkswagen": "German", "Lamborghini": "Italian", "Porsche": "German", "Spotify": "Subscription",
+                "Snapchat": "Advertising", "PlayStation": "Japanese", "Xbox": "American", "Louis Vuitton": "French",
+                "Chanel": "French", "Prada": "Italian", "Omega": "Swiss", "Cartier": "French",
+                "Tiffany": "American", "Walmart": "American", "Target": "American", "Costco": "American",
+                "Kroger": "American", "Whole Foods": "American", "7-Eleven": "Franchise", "CVS": "American",
+                "Walgreens": "American", "Home Depot": "American", "Lowe's": "American", "Best Buy": "American",
+                "GameStop": "American", "Foot Locker": "American", "Gap": "American", "H&M": "Scandinavian",
+                "Zara": "Spanish", "Uniqlo": "Japanese", "Levi's": "American", "Ralph Lauren": "American",
+                "Tommy Hilfiger": "American", "Calvin Klein": "American", "Victoria's Secret": "American", "L'Oreal": "French",
+                "Maybelline": "American", "MAC": "Canadian", "Sephora": "French", "Ulta": "American",
+                "Gillette": "American", "Old Spice": "American", "Dove": "American", "Colgate": "American",
+                "Crest": "American", "Listerine": "American", "Kleenex": "American", "Charmin": "American",
+                "Bounty": "American", "Tide": "American", "Downy": "American", "Febreze": "American",
+                "Lysol": "American", "Clorox": "American", "Band-Aid": "Medical", "Tylenol": "Medical",
+                "Advil": "Medical", "Benadryl": "Medical", "Vicks": "Medical", "Intel": "Silicon Valley",
+                "AMD": "Silicon Valley", "Nvidia": "Silicon Valley",
+
+                // Games - hints suggest genre or platform shared across many games
+                "Minecraft": "Creative", "Fortnite": "Free to play", "Roblox": "Free to play", "Chess": "Classic",
+                "Poker": "Classic", "Monopoly": "Classic", "UNO": "Classic", "Tetris": "Classic",
+                "Mario": "Nintendo", "Pokemon": "Nintendo", "Zelda": "Nintendo",
+                "Call of Duty": "Multiplayer", "FIFA": "Annual", "GTA": "Open world",
+                "Solitaire": "Classic", "Checkers": "Classic", "Scrabble": "Classic",
+                "Pac-Man": "Classic", "Sonic": "Sega", "Candy Crush": "Free to play",
+                "Among Us": "Multiplayer", "Fall Guys": "Multiplayer", "League of Legends": "Free to play",
+                "Valorant": "Free to play", "Counter-Strike": "Multiplayer", "Overwatch": "Multiplayer",
+                "Apex Legends": "Free to play", "PUBG": "Multiplayer", "Red Dead Redemption": "Open world",
+                "The Witcher": "Open world", "Skyrim": "Open world", "Animal Crossing": "Nintendo",
+                "Sims": "PC", "Civilization": "PC", "StarCraft": "PC",
+                "Mortal Kombat": "Multiplayer", "Street Fighter": "Multiplayer", "Super Smash Bros": "Nintendo",
+                "Stardew Valley": "Indie", "Terraria": "Indie", "Undertale": "Indie",
+                "Age of Empires": "PC", "Warcraft": "PC", "Hearthstone": "Free to play",
+                "Magic The Gathering": "Classic", "Yu-Gi-Oh": "Classic", "Blackjack": "Classic",
+                "Minesweeper": "Classic", "Sudoku": "Classic", "Wordle": "Free to play",
+                "2048": "Free to play", "Flappy Bird": "Free to play", "Geometry Dash": "Mobile",
+                "Plants vs Zombies": "Mobile", "Five Nights at Freddy's": "Indie",
+                "Cuphead": "Indie", "Hollow Knight": "Indie", "Celeste": "Indie",
+                "Dead Cells": "Indie", "Hades": "Indie", "Dark Souls": "Multiplayer",
+                "Elden Ring": "Open world", "Bloodborne": "Multiplayer", "Sekiro": "Single player",
+                "Monster Hunter": "Multiplayer", "Resident Evil": "Single player", "Silent Hill": "Single player",
+                "Dead Space": "Single player", "Bioshock": "Single player", "Half-Life": "PC",
+                "Portal": "Single player", "Left 4 Dead": "Multiplayer", "Destiny": "Multiplayer",
+                "Borderlands": "Multiplayer", "Diablo": "Multiplayer", "Path of Exile": "Free to play",
+                "Escape from Tarkov": "PC", "Rainbow Six": "Multiplayer", "Payday": "Multiplayer",
+                "Metal Gear Solid": "Single player", "Splinter Cell": "Single player", "Hitman": "Single player",
+                "Tomb Raider": "Single player", "Final Fantasy": "Single player", "Dragon Quest": "Single player",
+                "Persona": "Single player", "Kingdom Hearts": "Single player", "Yakuza": "Single player",
+                "Nier": "Single player", "Crash Bandicoot": "Single player", "Spyro": "Single player",
+                "Rayman": "Single player", "Rocket League": "Multiplayer", "Forza": "Multiplayer",
+                "Gran Turismo": "Single player", "Need for Speed": "Single player", "Assassin's Creed": "Open world",
+                "Far Cry": "Open world", "Battlefield": "Multiplayer", "Halo": "Multiplayer",
+                "Gears of War": "Multiplayer", "Uncharted": "Single player", "The Last of Us": "Single player",
+                "God of War": "Single player", "Spider-Man": "Single player", "Batman Arkham": "Single player",
+                "Dota 2": "Free to play", "Angry Birds": "Mobile", "Temple Run": "Mobile",
+                "Subway Surfers": "Mobile", "Clash of Clans": "Mobile", "Clash Royale": "Mobile",
+                "Brawl Stars": "Mobile", "NBA 2K": "Annual", "Madden": "Annual",
+                "Tekken": "Multiplayer",
+
+                // Clash Royale Cards - hints suggest card type or mechanic shared across many cards
+                "Knight": "Common", "Archers": "Common", "Goblins": "Common", "Giant": "Rare",
+                "P.E.K.K.A": "Epic", "Minions": "Common", "Balloon": "Epic", "Witch": "Epic",
+                "Wizard": "Epic", "Hog Rider": "Rare", "Prince": "Epic", "Baby Dragon": "Epic",
+                "Ice Wizard": "Legendary", "Miner": "Legendary", "Sparky": "Legendary", "Mega Knight": "Legendary",
+                "Barbarians": "Common", "Skeleton Army": "Epic", "Musketeer": "Rare", "Golem": "Epic",
+                "Skeletons": "Common", "Valkyrie": "Rare", "Bomber": "Common", "Mini P.E.K.K.A": "Rare",
+                "Spear Goblins": "Common", "Giant Skeleton": "Epic", "Minion Horde": "Common", "Royal Giant": "Common",
+                "Guards": "Epic", "Princess": "Legendary", "Dark Prince": "Epic", "Three Musketeers": "Rare",
+                "Lava Hound": "Legendary", "Ice Spirit": "Common", "Fire Spirit": "Common", "Inferno Dragon": "Legendary",
+                "Ice Golem": "Rare", "Mega Minion": "Rare", "Dart Goblin": "Rare", "Goblin Gang": "Common",
+                "Electro Wizard": "Legendary", "Elite Barbarians": "Rare", "Hunter": "Epic", "Executioner": "Epic",
+                "Bandit": "Legendary", "Royal Recruits": "Common", "Night Witch": "Legendary", "Bats": "Common",
+                "Royal Ghost": "Legendary", "Ram Rider": "Legendary", "Zappies": "Rare", "Rascals": "Common",
+                "Cannon Cart": "Rare", "Skeleton Barrel": "Common", "Flying Machine": "Rare", "Wall Breakers": "Rare",
+                "Royal Hogs": "Rare", "Goblin Giant": "Epic", "Fisherman": "Legendary", "Magic Archer": "Legendary",
+                "Electro Dragon": "Epic", "Firecracker": "Common", "Mighty Miner": "Champion", "Elixir Golem": "Rare",
+                "Battle Healer": "Rare", "Electro Giant": "Epic", "Mother Witch": "Legendary", "Electro Spirit": "Common",
+                "Golden Knight": "Champion", "Archer Queen": "Champion", "Skeleton King": "Champion", "Phoenix": "Legendary",
+                "Monk": "Champion", "Little Prince": "Champion", "Cannon": "Common", "Goblin Hut": "Rare",
+                "Mortar": "Common", "Inferno Tower": "Rare", "Bomb Tower": "Rare", "Barbarian Hut": "Rare",
+                "Tesla": "Common", "Elixir Collector": "Rare", "X-Bow": "Epic", "Tombstone": "Rare",
+                "Furnace": "Rare", "Goblin Cage": "Rare", "Goblin Drill": "Epic", "Fireball": "Rare",
+                "Arrows": "Common", "Rage": "Epic", "Rocket": "Rare", "Goblin Barrel": "Epic",
+                "Freeze": "Epic", "Mirror": "Epic", "Lightning": "Epic", "Zap": "Common",
+                "Poison": "Epic", "Graveyard": "Legendary", "The Log": "Legendary", "Tornado": "Epic",
+                "Clone": "Epic", "Earthquake": "Rare", "Barbarian Barrel": "Epic", "Heal Spirit": "Common",
+                "Giant Snowball": "Common", "Royal Delivery": "Common", "Void": "Legendary",
+                "Dagger Duchess": "Champion",
+
+                // Locations - hints suggest type or setting shared by many locations
+                "Beach": "Coastal", "Mountain": "Natural", "Desert": "Natural", "Forest": "Natural",
+                "Airport": "Transport", "Hospital": "Public", "School": "Public", "Library": "Public",
+                "Museum": "Cultural", "Park": "Public", "Zoo": "Public", "Stadium": "Entertainment",
+                "Restaurant": "Commercial", "Hotel": "Commercial", "Mall": "Commercial", "Bank": "Commercial",
+                "Church": "Religious", "Castle": "Historical", "Bridge": "Infrastructure", "Lighthouse": "Coastal",
+                "Farm": "Rural", "Factory": "Industrial", "Gym": "Commercial", "Pool": "Public",
+                "City": "Urban", "Village": "Rural", "Island": "Natural", "Lake": "Natural",
+                "River": "Natural", "Ocean": "Natural", "Cave": "Natural", "Waterfall": "Natural",
+                "Train Station": "Transport", "Supermarket": "Commercial", "Post Office": "Public", "Police Station": "Public",
+                "Fire Station": "Public", "Temple": "Religious", "Mosque": "Religious", "Palace": "Historical",
+                "Tower": "Infrastructure", "Tunnel": "Infrastructure", "Valley": "Natural", "Canyon": "Natural",
+                "Cliff": "Natural", "Harbor": "Coastal", "Marina": "Coastal", "Ranch": "Rural",
+                "Vineyard": "Rural", "Office": "Commercial", "Warehouse": "Industrial", "Spa": "Commercial",
+                "Salon": "Commercial", "Barbershop": "Commercial", "Laundromat": "Commercial", "Gas Station": "Commercial",
+                "Car Wash": "Commercial", "Parking Lot": "Commercial", "Garage": "Commercial", "Workshop": "Commercial",
+                "Bakery": "Commercial", "Butcher": "Commercial", "Deli": "Commercial", "Pharmacy": "Commercial",
+                "Clinic": "Public", "Dentist": "Commercial", "Vet": "Commercial", "Courthouse": "Public",
+                "Prison": "Public", "Embassy": "Public", "Aquarium": "Cultural", "Planetarium": "Cultural",
+                "Observatory": "Cultural", "Amusement Park": "Entertainment", "Carnival": "Entertainment", "Circus": "Entertainment",
+                "Concert Hall": "Entertainment", "Opera House": "Cultural", "Casino": "Entertainment", "Nightclub": "Entertainment",
+                "Bar": "Commercial", "Pub": "Commercial", "Brewery": "Industrial", "Winery": "Rural",
+                "Distillery": "Industrial", "Cemetery": "Public", "Memorial": "Cultural", "Monument": "Cultural",
+                "Ruins": "Historical", "Campground": "Natural", "Trail": "Natural", "Pier": "Coastal",
+                "Dock": "Coastal", "Boardwalk": "Coastal", "Plaza": "Urban", "Square": "Urban",
+                "Fountain": "Urban", "Theater": "Entertainment", "Cafe": "Commercial", "Volcano": "Natural"
+            };
+            
+            // If we have a specific hint, use it
+            if (specificHints[word]) {
+                return specificHints[word];
+            }
+            
+            // Return empty string if no specific hint
+            return "";
+        }
+
+        // Set game mode (classic or variant)
+        function setGameMode(mode) {
+            currentGameMode = mode;
+            document.getElementById('classicModeBtn').classList.toggle('active', mode === 'classic');
+            document.getElementById('variantModeBtn').classList.toggle('active', mode === 'variant');
+            
+            // Hide hint option in variant mode
+            const hintOption = document.getElementById('hintOption');
+            if (mode === 'variant') {
+                hintOption.style.display = 'none';
+            } else {
+                hintOption.style.display = 'flex';
+            }
+        }
+
+        // Toggle checkbox helper
+        function toggleCheckbox(id) {
+            const checkbox = document.getElementById(id);
+            checkbox.checked = !checkbox.checked;
+        }
+
+        // Add custom category
+        function addCustomCategory() {
+            const nameInput = document.getElementById('customCategoryName');
+            const itemsInput = document.getElementById('customCategoryItems');
+            const errorDiv = document.getElementById('customCategoryError');
+            
+            const name = nameInput.value.trim();
+            const itemsText = itemsInput.value.trim();
+            
+            errorDiv.classList.add('hidden');
+            
+            if (!name) {
+                errorDiv.textContent = 'Please enter a category name';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (!itemsText) {
+                errorDiv.textContent = 'Please enter at least one item';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (categories[name] || customCategories[name]) {
+                errorDiv.textContent = 'A category with this name already exists';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            const items = itemsText.split(',').map(item => item.trim()).filter(item => item.length > 0);
+            
+            if (items.length === 0) {
+                errorDiv.textContent = 'Please enter at least one valid item';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            customCategories[name] = items;
+            saveCustomCategories(); // Save to localStorage
+            
+            nameInput.value = '';
+            itemsInput.value = '';
+            
+            updateCustomCategoriesList();
+            updateCategoryGrid();
+        }
+
+        // Remove custom category
+        function removeCustomCategory(name) {
+            delete customCategories[name];
+            saveCustomCategories(); // Save to localStorage
+            updateCustomCategoriesList();
+            updateCategoryGrid();
+            updateCategoryStatus();
+        }
+
+        // Update custom categories list display
+        function updateCustomCategoriesList() {
+            const list = document.getElementById('customCategoriesList');
+            list.innerHTML = '';
+            
+            for (let name in customCategories) {
+                const div = document.createElement('div');
+                div.className = 'custom-category-item';
+                div.innerHTML = `
+                    <div>
+                        <strong>${name}</strong>
+                        <small>${customCategories[name].length} items</small>
+                    </div>
+                    <div>
+                        <button class="remove-btn" onclick="editCustomCategory('${name}')" style="background: #667eea; margin-right: 5px;">Edit</button>
+                        <button class="remove-btn" onclick="removeCustomCategory('${name}')">Remove</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            }
+        }
+
+        // Edit custom category
+        function editCustomCategory(name) {
+            const nameInput = document.getElementById('customCategoryName');
+            const itemsInput = document.getElementById('customCategoryItems');
+            
+            // Populate inputs with existing data
+            nameInput.value = name;
+            itemsInput.value = customCategories[name].join(', ');
+            
+            // Temporarily remove the category so it can be re-added
+            delete customCategories[name];
+            saveCustomCategories();
+            updateCustomCategoriesList();
+            updateCategoryGrid();
+            updateCategoryStatus();
+            
+            // Scroll to the input fields
+            document.getElementById('customCategoryName').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Update category grid to include custom categories
+        function updateCategoryGrid() {
+            const grid = document.getElementById('categoryGrid');
+            grid.innerHTML = '';
+            
+            // Add default categories
+            for (let category in categories) {
+                const div = document.createElement('div');
+                div.className = 'category-item';
+                div.innerHTML = `
+                    <input type="checkbox" id="cat_${category}" value="${category}" checked>
+                    <label for="cat_${category}" style="cursor: pointer; margin: 0;">${category} (${categories[category].length})</label>
+                `;
+                div.onclick = function(e) {
+                    if (e.target.tagName !== 'INPUT') {
+                        const checkbox = this.querySelector('input');
+                        checkbox.checked = !checkbox.checked;
+                    }
+                };
+                grid.appendChild(div);
+            }
+            
+            // Add custom categories
+            for (let category in customCategories) {
+                const div = document.createElement('div');
+                div.className = 'category-item';
+                div.style.background = '#fff3cd';
+                div.innerHTML = `
+                    <input type="checkbox" id="cat_${category}" value="${category}" checked>
+                    <label for="cat_${category}" style="cursor: pointer; margin: 0; color: #856404;">${category} (${customCategories[category].length}) ⭐</label>
+                `;
+                div.onclick = function(e) {
+                    if (e.target.tagName !== 'INPUT') {
+                        const checkbox = this.querySelector('input');
+                        checkbox.checked = !checkbox.checked;
+                    }
+                };
+                grid.appendChild(div);
+            }
+        }
+
+        // Show categories screen
+        function showCategories() {
+            document.getElementById('homeScreen').classList.add('hidden');
+            document.getElementById('categoryScreen').classList.remove('hidden');
+        }
+
+        // Back to home from categories
+        function backToHomeFromCategories() {
+            updateCategoryStatus();
+            document.getElementById('categoryScreen').classList.add('hidden');
+            document.getElementById('homeScreen').classList.remove('hidden');
+        }
+
+        // Update category status display
+        function updateCategoryStatus() {
+            const checkboxes = document.querySelectorAll('#categoryGrid input[type="checkbox"]:checked');
+            const count = checkboxes.length;
+            const statusDiv = document.getElementById('categoryStatus');
+            
+            if (count === 0) {
+                statusDiv.textContent = '⚠️ No categories selected';
+                statusDiv.style.color = '#dc3545';
+            } else if (count === Object.keys(categories).length) {
+                statusDiv.textContent = '✓ All categories selected';
+                statusDiv.style.color = '#28a745';
+            } else {
+                statusDiv.textContent = `✓ ${count} category${count > 1 ? 'ies' : ''} selected`;
+                statusDiv.style.color = '#667eea';
+            }
+        }
+
+        // Initialize category status
+        updateCategoryStatus();
+    </script>
+</body>
+</html>
